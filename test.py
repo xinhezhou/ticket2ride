@@ -1,6 +1,7 @@
 from game import Game
-from player import Player
-from utils import get_available_routes, translate_cards, translate_route
+from random_player import Player
+from game_utils import get_possible_routes
+from translate_utils import translate_cards, translate_route
 
 num_vertices = 6
 num_colors = 10
@@ -17,18 +18,39 @@ edges = {
 }
 
 game = Game(num_vertices, num_colors, edges)
-player = Player()
+player = Player(10)
 
 def test_draw_cards(game, player, count):
     graph = game.get_graph()
     for i in range(count):
         print(translate_cards(player.cards))
         availability = game.compute_route_availability(player)
-        print(get_available_routes(num_vertices, num_colors, availability))
+        print(get_possible_routes(num_vertices, num_colors, availability))
 
         c = player.choose_card(graph, availability, game.public_cards)
         game.take_card(c, player)
         print("\n")
 
 
-test_draw_cards(game, player,10)
+def test_claim_routes(game, player, count):
+    graph = game.get_graph()
+    for i in range(count):
+        # print(translate_cards(player.cards))
+
+        c = player.choose_card(graph, game.compute_route_availability(player), game.public_cards)
+        game.take_card(c, player)
+
+        route  = player.choose_route(graph, game.compute_route_availability(player))
+        if route is not None:
+            print(translate_cards(player.cards))
+            print(get_possible_routes(num_vertices, num_colors, game.compute_route_availability(player)))
+            print("taken: ", translate_route(route))
+            game.claim_route(route, player)
+            print(translate_cards(player.cards))
+            print("\n")
+
+
+test_claim_routes(game, player, 1)
+# player.cards = [1, 1, 0, 0, 0, 0, 1, 1, 1]
+# availability = game.compute_route_availability(player)
+# print(get_available_routes(num_vertices, num_colors, availability))

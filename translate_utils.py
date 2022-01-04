@@ -33,18 +33,8 @@ card_colors = {
     8: "yellow",
 }
 
-
-def get_available_routes(num_vertices, num_colors, availability):
-    routes = []
-    for u in range(num_vertices):
-        for v in range(num_vertices):
-            for c in range(num_colors):
-                if availability[u][v][c]:
-                    routes.append(translate_route(u,v,c))
-    return routes
-
-
-def translate_route(u, v, c):
+def translate_route(route):
+    u,v,c = route
     return (cities[u], cities[v], route_colors[c])
 
 def translate_cards(cards):

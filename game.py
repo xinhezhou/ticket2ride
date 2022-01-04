@@ -34,6 +34,7 @@ class Game:
         assert u < v
         self.status[u][v][c] = 1
         count = self.graph[u][v][c]
+        player.trains -= count
 
         if c == 0:
             c = np.argmax(player.cards[1:]) 
@@ -41,7 +42,6 @@ class Game:
             player.cards[0] -= 1
             count -= 1
             c = np.argmax(player.cards[1:])
-
 
         if player.cards[c] >= count:
             player.cards[c] -= count
@@ -53,31 +53,11 @@ class Game:
         """
         take 1 public card of color c and replace it with the top card in the deck
         """
+        assert sum(self.public_cards) == 5
         player.cards[c] += 1
         self.public_cards[c] -= 1
         self.public_cards[self.deck_cards[self.deck_index]] += 1
         self.deck_index += 1
-
-    
-    def compute_route_availability(self, player):
-        """
-        compute an availbility binary matrix based on the status of the routes 
-        and the cards owned by the player
-        """
-        availability = np.zeros((self.v, self.v, self.c))
-        for u in range(self.v):
-            for v in range(self.v):
-                if self.status[u][v][0] == 0 and player.cards[0] + max(player.cards[1:]) >= self.graph[u][v][0]:
-                    availability[u][v][0] = 1
-                
-                if self.status[u][v][9] == 0 and player.cards[0] + max(player.cards[1:]) >= self.graph[u][v][9] and player.cards[0] >= 1:
-                    availability[u][v][9] = 1
-
-                for c in range(1, 9):
-                    if self.status[u][v][c] == 0 and player.cards[0] + player.cards[c] >= self.graph[u][v][c]:
-                        availability[u][v][c] = 1
-        return availability
-
 
 
     def get_graph(self):
