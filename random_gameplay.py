@@ -1,6 +1,7 @@
 from game import Game
 from random_player import Player
 from game_utils import get_possible_routes, get_route_score, check_path, compute_availability_matrix
+from translate_utils import translate_route
 
 import matplotlib.pyplot as plt
 
@@ -18,7 +19,7 @@ edges = {
     (3, 5, 9): 3,
 }
 num_trains = 10
-iterations = 1000
+iterations = 100
 
 
 
@@ -34,12 +35,16 @@ def play_game(iterations):
         graph = game.get_graph()
         num_rounds = 0
         while player.trains > 2:
-
+            print(player.cards, game.public_cards)
             c = player.choose_card(graph, game.status, game.public_cards)
             game.take_card(c, player)
             if c != 0:
                 c = player.choose_card(graph, game.status, game.public_cards)
-                game.take_card(c, player)
+                if c != 0:
+                    game.take_card(c, player)
+
+            print(player.cards)
+
 
             route  = player.choose_route(graph, compute_availability_matrix(graph, game.status, player.cards))
             if route is not None:
@@ -69,17 +74,14 @@ print(rounds)
 print(path_complete)
 
 
-fig, ax = plt.subplots(3)
+fig, ax = plt.subplots(2)
 ax[0].hist(scores, density=False, bins=10)
 ax[0].title.set_text("scores")
-ax[1].hist(rounds, density=False, bins=10)
-ax[1].title.set_text("rounds")
-ax[2].hist(path_complete, density=False, bins=2)
-ax[2].title.set_text("path_complete")
+ax[1].hist(path_complete, density=False, bins=2)
+ax[1].title.set_text("path_complete")
 fig.tight_layout()
-plt.savefig("diagrams/random_single_player.pdf")
-# plt.show()
-
+# plt.savefig("diagrams/random_single_player.pdf")
+plt.show()
 
 
 

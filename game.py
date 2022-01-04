@@ -37,11 +37,11 @@ class Game:
         player.trains -= count
 
         if c == 0:
-            c = np.argmax(player.cards[1:]) 
+            c = np.argmax(player.cards[1:]) + 1
         if c == 9:
             player.cards[0] -= 1
             count -= 1
-            c = np.argmax(player.cards[1:])
+            c = np.argmax(player.cards[1:]) + 1
 
         if player.cards[c] >= count:
             player.cards[c] -= count

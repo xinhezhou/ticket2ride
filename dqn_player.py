@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from dqn_utils import compute_card_agent_input
 from game_utils import compute_availability_matrix
 
@@ -29,16 +30,13 @@ class Player:
     def choose_card(self, graph, status, public_cards):
         availability = compute_availability_matrix(graph, status, self.cards)
         action_dist = self.model(compute_card_agent_input(graph, availability, public_cards, self.cards))
+        action = torch.argmax(action_dist)
         available_colors = []
-        available_action_dist = []
         for i in range(9):
             if public_cards[i] > 0:
                 available_colors.append(i)
-                available_action_dist.append(action_dist[i])
-            else:
-                available_action_dist.append(0)
-        
-        if sum(available_action_dist) == 0:
-            return action_dist, np.random.choice(available_colors)
+    
+        if action_dist[action] == 0 or public_cards[action] == 0:
+            return None, np.random.choice(available_colors)
         else:
-            return action_dist, np.argmax(available_action_dist)
+            return action_dist, action

@@ -2,7 +2,7 @@ from game import Game
 from dqn_player import Player
 from game_utils import get_possible_routes, get_route_score, check_path, compute_availability_matrix
 from dqn_network import Network
-from dqn_utils import compute_reward, compute_card_agent_input
+from dqn_utils import compute_card_agent_input
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -41,46 +41,47 @@ colors = [0,0,0,0,0,0,0,0,0]
 
 def play_game(iterations):
     scores = []
-    rounds = []
     path_complete = []
 
     for _ in range(iterations):
         game = Game(num_vertices, num_route_colors, edges)
         player = Player(num_trains, card_agent)
         graph = game.get_graph()
-        num_rounds = 0
         while player.trains > 2:
             prev_cards = player.cards[:]
             state_action_values, c1 = player.choose_card(graph, game.status, game.public_cards)
             
             game.take_card(c1, player)
             if c1 != 0:
-                n, c2 = player.choose_card(graph, game.status, game.public_cards)
-                game.take_card(c2, player)
-
+                __, c2 = player.choose_card(graph, game.status, game.public_cards)
+                if c2 != 0:
+                    game.take_card(c2, player)
+                    colors[c2] += 1
             colors[c1] += 1
-            colors[c2] += 1
 
-
-            reward = compute_reward(graph, game.status, prev_cards, player.cards)
-            next_input = compute_card_agent_input(graph, game.status, game.public_cards, player.cards)
-            next_best_q = max(card_agent(next_input))
-            expected_state_action_avlue = reward + gamma * next_best_q
-
-            loss = criterion(state_action_values[c1], expected_state_action_avlue)
-            # Optimize the model
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            # print(loss)
-
+            reward = 0
+            prev_path_complete = check_path(game.status,4,5)
             route  = player.choose_route(graph, compute_availability_matrix(graph, game.status, player.cards))
             if route is not None:
                 game.claim_route(route, player)
-            num_rounds += 1
+                reward += get_route_score(graph, route)
+                if check_path(game.status,4,5) is not prev_path_complete:
+                    reward += 5
+
+            reward = reward / 16
+            if state_action_values is not None:
+                next_input = compute_card_agent_input(graph, game.status, game.public_cards, player.cards)
+                next_best_q = max(card_agent(next_input))
+                expected_state_action_avlue = reward + gamma * next_best_q
+
+                loss = criterion(state_action_values[c1], expected_state_action_avlue)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                # print(player.cards, state_action_values)
+            
 
 
-        rounds.append(num_rounds)
         score = 0
         routes = []
         for i in range(game.v):
@@ -97,21 +98,19 @@ def play_game(iterations):
         else:
             path_complete.append(0)
         scores.append(score)
-    return scores, rounds, path_complete
+    return scores, path_complete
 
 
-scores, rounds, path_complete  = play_game(iterations)
-print(colors)
+scores, path_complete  = play_game(iterations)
+print(path_complete)
 
 
 
-fig, ax = plt.subplots(3)
+fig, ax = plt.subplots(2)
 ax[0].hist(scores, density=False, bins=10)
 ax[0].title.set_text("scores")
-ax[1].hist(rounds, density=False, bins=10)
-ax[1].title.set_text("rounds")
-ax[2].hist(path_complete, density=False, bins=2)
-ax[2].title.set_text("path_complete")
+ax[1].hist(path_complete, density=False, bins=2)
+ax[1].title.set_text("path_complete")
 fig.tight_layout()
 # plt.savefig("diagrams/random_single_player.pdf")
 plt.show()
