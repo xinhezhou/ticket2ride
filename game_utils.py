@@ -45,19 +45,20 @@ def compute_progress (graph, status, route, s, t):
     the origin and the destination, where claimed routes now have
     0 distance
     """
-    g = {}
+    n = len(graph)
+    g = -1 * np.ones((n, n))
     for i in range(len(graph)):
         for j in range(len(graph)):
             if min(graph[i][j]) != 0:
                 if 1 in status[i][j]:
-                    g[(i, j)] = 0
+                    g[i][j] = 0
                 else:
-                    g[(i, j)] = min(graph[i][j])
+                    g[i][j] = min(graph[i][j])
             
-    d1 = run_Dijkstra(g, s, t, len(graph))
+    d1 = run_Dijkstra(g, s, t, n)
     u,v,c = route
     g[(u, v)] = 0
-    d2 = run_Dijkstra(g, s, t)
+    d2 = run_Dijkstra(g, s, t, n)
     return d2 - d1
 
 
@@ -69,7 +70,20 @@ def run_Dijkstra(graph, s, t, n):
     queue[s] = 0
     distances[s] = 0
     while len(queue) > 0:
-        pass
+        min_vertex = 0
+        min_d = 100
+        # find closest vertex
+        for v in queue:
+            if queue[v] < min_d:
+                min_d = queue[v]
+                min_vertex = v
+        # relax outgoing edges
+        for i in range(n):
+            if graph[i][min_vertex] != -1 or graph[min_vertex][i] != -1:
+                weight = max(graph[i][min_vertex], graph[min_vertex][i] != -1)
+                distances[i] = min(distances[i], distances[min_vertex] + weight)
+        queue.pop(min_vertex)
+
     return distances[t]
 
 
