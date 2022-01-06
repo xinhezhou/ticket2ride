@@ -1,5 +1,6 @@
 from game import Game
 from random_player import RandomPlayer
+from greedy_player import GreedyPlayer
 from game_utils import check_path, compute_availability_matrix
 from translate_utils import translate_route
 import numpy as np
@@ -43,7 +44,8 @@ def play_game(iterations):
     for _ in range(iterations):
         np.random.shuffle(deck_cards) 
         game = Game(num_vertices, num_route_colors, edges, deck_cards)
-        player = RandomPlayer(num_card_colors)
+        # player = RandomPlayer(num_card_colors, start, end)
+        player = GreedyPlayer(num_card_colors, start, end)
         game.draw_cards(player)
         game.draw_cards(player)
         num_rounds = 0
@@ -76,10 +78,10 @@ print(rounds)
 fig, ax = plt.subplots(2)
 ax[0].hist(trains, density=False, bins=8)
 ax[0].title.set_text("trains used")
-ax[1].hist(rounds, density=False, bins=10)
+ax[1].hist(rounds, density=False, bins=10, range=(0,50))
 ax[1].title.set_text("number of rounds")
 fig.tight_layout()
-plt.savefig("diagrams/solitaire_random.pdf")
+# plt.savefig("diagrams/solitaire_greedy.pdf")
 # plt.show()
 
 

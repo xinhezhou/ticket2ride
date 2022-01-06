@@ -29,8 +29,8 @@ class Game:
         count = self.graph[u][v][c]
         player.trains_used += count
         player.routes[(u,v)] = c
-        player.explored.add(u)
-        player.explored.add(v)
+        player.explored[u] = len(player.explored)
+        player.explored[v] = len(player.explored)
 
         if player.cards[c] >= count:
             player.cards[c] -= count

@@ -37,6 +37,45 @@ def get_available_routes(availability):
     return routes
     
 
+
+def compute_progress (graph, status, route, s, t):
+    """
+    Use Dijkstra to compute the progress made by taking the route
+    progress is measured by the change in distance between
+    the origin and the destination, where claimed routes now have
+    0 distance
+    """
+    g = {}
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if min(graph[i][j]) != 0:
+                if 1 in status[i][j]:
+                    g[(i, j)] = 0
+                else:
+                    g[(i, j)] = min(graph[i][j])
+            
+    d1 = run_Dijkstra(g, s, t, len(graph))
+    u,v,c = route
+    g[(u, v)] = 0
+    d2 = run_Dijkstra(g, s, t)
+    return d2 - d1
+
+
+def run_Dijkstra(graph, s, t, n):
+    queue = {}
+    for i in range(n):
+        queue[n] = 100 # arbitrary big number
+    distances = [100] * n
+    queue[s] = 0
+    distances[s] = 0
+    while len(queue) > 0:
+        pass
+    return distances[t]
+
+
+    
+
+
 def check_path(status, a, b):
     """
     use BFS to check if there a path between a and b

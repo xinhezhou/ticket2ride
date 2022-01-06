@@ -3,11 +3,11 @@ import random
 from game_utils import get_available_routes
 
 class RandomPlayer:
-    def __init__(self, num_colors, model=None):
+    def __init__(self, num_colors, start, end, model=None):
         self.cards = num_colors * [0]
         self.routes = {}
         self.trains_used = 0 
-        self.explored = set()
+        self.explored = {start: 0,  end: 1}
 
 
     def choose_route(self, graph, availability):
