@@ -9,7 +9,7 @@ scoring_table = {
 }
 
 
-def compute_availability_matrix(graph, status, player_cards):
+def compute_availability_matrix(graph, status, player):
     """
     compute an availbility binary matrix based on the status of the routes 
     and the cards owned by the player
@@ -17,35 +17,24 @@ def compute_availability_matrix(graph, status, player_cards):
     availability = np.zeros(status.shape)
     for u in range(len(availability)):
         for v in range(len(availability)):
-            if status[u][v][0] == 0 and player_cards[0] + max(player_cards[1:]) >= graph[u][v][0]:
-                availability[u][v][0] = 1
-            
-            if status[u][v][9] == 0 and player_cards[0] + max(player_cards[1:]) >= graph[u][v][9] and player_cards[0] >= 1:
-                availability[u][v][9] = 1
-
-            for c in range(1, 9):
-                if status[u][v][c] == 0 and player_cards[0] + player_cards[c] >= graph[u][v][c]:
+            for c in range(len(availability[0][0])):
+                if (u, v) not in player.routes and graph[u][v][c] > 0 and  status[u][v][c] == 0 and player.cards[0] + player.cards[c] >= graph[u][v][c]:
                     availability[u][v][c] = 1
     return availability
 
-def get_possible_routes(availability):
+def get_available_routes(availability):
+    """
+    return all available routes from an availability matrix
+    """
     routes = []
     v = len(availability)
     c = len(availability[0][0])
     for i in range(v):
         for j in range(v):
             for k in range(c):
-                if availability[i][j][k]:
+                if availability[i][j][k] == 1:
                     routes.append(((i,j,k)))
     return routes
-
-def get_route_score(graph, route):
-    """
-    calculate the total score of the given route
-    """
-    u,v,c = route
-    return scoring_table[graph[u][v][c]]
-    
     
 
 def check_path(status, a, b):

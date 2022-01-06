@@ -1,24 +1,21 @@
 cities = {
-    0: "Amsterdam",
-    1: "Berlin",
-    2: "Bruxelles",
-    3: "Essen",
-    4: "Frankfurt",
-    5: "Kobenhavn",
+    0: "Albuquerque",
+    1: "Denver",
+    2: "Helena",
+    3: "Los Angeles",
+    4: "Salt Lake City",
+    5: "San Francisco",
+    6: "Seattle",
 }
 
 
 route_colors = {
-    0: "grey",
     1: "black",
     2: "blue",
     3: "green",
-    4: "orange",
-    5: "purple",
-    6: "red",
-    7: "white",
-    8: "yellow",
-    9: "1 rainbow",
+    4: "red",
+    5: "white",
+    6: "yellow",
 }
 
 card_colors = {
@@ -26,11 +23,9 @@ card_colors = {
     1: "black",
     2: "blue",
     3: "green",
-    4: "orange",
-    5: "purple",
-    6: "red",
-    7: "white",
-    8: "yellow",
+    4: "red",
+    5: "white",
+    6: "yellow"
 }
 
 def translate_route(route):

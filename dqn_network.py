@@ -16,5 +16,5 @@ class Network(nn.Module):
         # print(x)
         x = x.to(self.device)
         x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        return x
+        x = F.softmax(self.linear2(x), dim=0)
+        return x.view(x.size(0), -1)

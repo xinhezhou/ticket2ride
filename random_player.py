@@ -1,31 +1,30 @@
 import numpy as np
+import random
+from game_utils import get_available_routes
 
-class Player:
-    def __init__(self, num_trains, model=None):
-        self.cards = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.trains = num_trains
+class RandomPlayer:
+    def __init__(self, num_colors, model=None):
+        self.cards = num_colors * [0]
+        self.routes = {}
+        self.trains_used = 0 
+        self.explored = set()
+
 
     def choose_route(self, graph, availability):
-        if np.random.random_sample() < 0.2:
-            return None
-
-        available_routes = []
-        v = len(availability)
-        c = len(availability[0][0])
-        for i in range(v):
-            for j in range(v):
-                for k in range(c):
-                    if availability[i][j][k] and self.trains > graph[i][j][k]:
-                        available_routes.append((i,j,k))
-
+        """
+        Find all possible routes and randomly choose one to take
+        """
+        available_routes = get_available_routes(availability)
         if len(available_routes) == 0:
             return None
         else:
-            return available_routes[np.random.randint(len(available_routes))]
+            return random.choice(available_routes)
 
-    def choose_card(self, graph, status, public_cards):
-        available_colors = []
-        for i in range(9):
-            if public_cards[i] > 0:
-                available_colors.append(i)
-        return np.random.choice(available_colors)
+    def draw_or_claim(self, graph, availability):
+        """
+        Randomly decide whether to draw 2 more cards or claim a route
+        """
+        if random.random() < 0.5:
+            return 0
+        else:
+            return 1

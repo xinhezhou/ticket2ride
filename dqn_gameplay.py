@@ -11,20 +11,23 @@ import matplotlib.pyplot as plt
 
 from translate_utils import translate_route
 
-num_vertices = 6
-num_route_colors = 10
+num_vertices = 7
+num_route_colors = 9
 num_card_colors = 9
 edges = {
-    (0, 2, 1): 1,
-    (0, 3, 8): 3,
-    (0, 4, 7): 2,
-    (1, 3, 2): 2,
-    (1, 4, 1): 3,
-    (1, 4, 6): 3,
-    (2, 4, 2): 2,
-    (3, 4, 3): 2,
-    (3, 5, 9): 3,
+    (0, 1, 0): 1,
+    (0, 3, 0): 2,
+    (0, 5, 0): 2,
+    (1, 4, 0): 2,
+    (2, 5, 0): 2,
+    (2, 6, 2): 2,
+    (2, 6, 5): 2,
+    (3, 4, 3): 3,
+    (3, 5, 0): 2,
+    (3, 6, 0): 2,
 }
+start = 1
+end = 2
 num_trains = 10
 iterations = 1000
 
@@ -48,10 +51,9 @@ def play_game(iterations):
         player = Player(num_trains, card_agent)
         graph = game.get_graph()
         while player.trains > 2:
-            prev_cards = player.cards[:]
             state_action_values, c1 = player.choose_card(graph, game.status, game.public_cards)
-            
             game.take_card(c1, player)
+            # print(state_action_values)
             if c1 != 0:
                 __, c2 = player.choose_card(graph, game.status, game.public_cards)
                 if c2 != 0:
@@ -70,6 +72,7 @@ def play_game(iterations):
 
             reward = reward / 16
             if state_action_values is not None:
+                # print(state_action_values)
                 next_input = compute_card_agent_input(graph, game.status, game.public_cards, player.cards)
                 next_best_q = max(card_agent(next_input))
                 expected_state_action_avlue = reward + gamma * next_best_q
@@ -78,7 +81,7 @@ def play_game(iterations):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                # print(player.cards, state_action_values)
+                print(player.cards, state_action_values)
             
 
 
@@ -91,7 +94,7 @@ def play_game(iterations):
                         score += get_route_score(game.graph, (i, j, k))
                         routes.append(translate_route((i,j,k)))
         # print(routes)
-        complete = check_path(game.status, 4, 5)
+        complete = check_path(game.status, start, end)
         if complete:
             score += 5
             path_complete.append(1)
