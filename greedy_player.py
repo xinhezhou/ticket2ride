@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from game_utils import get_available_routes
+from game_utils import get_available_routes, compute_availability_matrix
 
 class GreedyPlayer:
     def __init__(self, num_colors, start, end, model=None):
@@ -10,7 +10,7 @@ class GreedyPlayer:
         self.explored = {start: 0,  end: 1}
 
 
-    def choose_route(self, graph, availability):
+    def choose_route(self, graph, status):
         """
         Find all possible routes and chooses a route that connects to a city that
         has been explored recently.
@@ -18,6 +18,7 @@ class GreedyPlayer:
         by how recent the exploration is
         """
         # print(self.explored)
+        availability = compute_availability_matrix(graph, status, self)
         available_routes = get_available_routes(availability)
         one_explored = []
         two_explored = []
@@ -38,10 +39,11 @@ class GreedyPlayer:
         else:
             return None
 
-    def draw_or_claim(self, graph, availability):
+    def draw_or_claim(self, graph, status):
         """
         If at least one route connects to an explored city, claim a route. Otherwise, draw 2 cards
         """
+        availability = compute_availability_matrix(graph, status, self)
         available_routes = get_available_routes(availability)
         for u, v, c in available_routes:
             if u in self.explored or v in self.explored:

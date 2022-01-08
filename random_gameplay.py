@@ -1,13 +1,14 @@
 from game import Game
 from random_player import RandomPlayer
 from greedy_player import GreedyPlayer
+from dijkstra_player import DijkstraPlayer
 from game_utils import check_path, compute_availability_matrix
 from translate_utils import translate_route
 import numpy as np
 import matplotlib.pyplot as plt
 
 num_vertices = 7
-num_route_colors = 6
+num_route_colors = 7
 num_card_colors = 7
 deck_cards = [0] * 12  + [1,2,3,4,5,6] * 10 # train cards in the deck
 edges = {
@@ -45,18 +46,17 @@ def play_game(iterations):
         np.random.shuffle(deck_cards) 
         game = Game(num_vertices, num_route_colors, edges, deck_cards)
         # player = RandomPlayer(num_card_colors, start, end)
-        player = GreedyPlayer(num_card_colors, start, end)
+        # player = GreedyPlayer(num_card_colors, start, end)
+        player = DijkstraPlayer(num_card_colors, start, end)
         game.draw_cards(player)
         game.draw_cards(player)
         num_rounds = 0
         while not check_path(game.status, start, end):
             num_rounds += 1
-            availability = compute_availability_matrix(game.graph, game.status, player)
-            if game.card_index < len(game.cards) and player.draw_or_claim(game.graph, availability) == 0:
+            if game.card_index < len(game.cards) and player.draw_or_claim(game.graph, game.status) == 0:
                 game.draw_cards(player)
             else:
-                availability = compute_availability_matrix(game.graph, game.status, player)
-                route = player.choose_route(game.graph, availability)
+                route = player.choose_route(game.graph, game.status)
                 if route is not None:
                     game.claim_route(route, player)
 
@@ -81,7 +81,7 @@ ax[0].title.set_text("trains used")
 ax[1].hist(rounds, density=False, bins=10, range=(0,50))
 ax[1].title.set_text("number of rounds")
 fig.tight_layout()
-# plt.savefig("diagrams/solitaire_greedy.pdf")
+plt.savefig("diagrams/solitaire_Dijkstra.pdf")
 # plt.show()
 
 

@@ -1,3 +1,4 @@
+from matplotlib.pyplot import jet
 import numpy as np
 
 scoring_table = {
@@ -49,29 +50,31 @@ def compute_progress (graph, status, route, s, t):
     g = -1 * np.ones((n, n))
     for i in range(len(graph)):
         for j in range(len(graph)):
-            if min(graph[i][j]) != 0:
+            if max(graph[i][j]) != 0:
                 if 1 in status[i][j]:
                     g[i][j] = 0
                 else:
-                    g[i][j] = min(graph[i][j])
+                    # print(g)
+                    g[i][j] = max(graph[i][j])
             
     d1 = run_Dijkstra(g, s, t, n)
     u,v,c = route
     g[(u, v)] = 0
     d2 = run_Dijkstra(g, s, t, n)
-    return d2 - d1
+    return d1 - d2
 
 
 def run_Dijkstra(graph, s, t, n):
     queue = {}
     for i in range(n):
-        queue[n] = 100 # arbitrary big number
+        queue[i] = 100 # arbitrary big number
     distances = [100] * n
     queue[s] = 0
     distances[s] = 0
     while len(queue) > 0:
-        min_vertex = 0
-        min_d = 100
+        # print(queue)
+        min_vertex = list(queue.keys())[0]
+        min_d = queue[min_vertex]
         # find closest vertex
         for v in queue:
             if queue[v] < min_d:
@@ -80,10 +83,14 @@ def run_Dijkstra(graph, s, t, n):
         # relax outgoing edges
         for i in range(n):
             if graph[i][min_vertex] != -1 or graph[min_vertex][i] != -1:
-                weight = max(graph[i][min_vertex], graph[min_vertex][i] != -1)
+                # print(graph)
+                weight = max(graph[i][min_vertex], graph[min_vertex][i])
                 distances[i] = min(distances[i], distances[min_vertex] + weight)
+                if i in queue:
+                    queue[i] = distances[i]
         queue.pop(min_vertex)
 
+    # print(graph,distances)
     return distances[t]
 
 
