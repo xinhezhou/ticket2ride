@@ -31,7 +31,7 @@ class SolitaireGame:
         """
         u,v,c = route
         assert u < v
-        self.status[u][v][c] = 1
+        self.status[u][v][c] = player.id
         
         count = self.graph[u][v][c]
         player.trains_used += count
