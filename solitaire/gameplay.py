@@ -77,8 +77,12 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
         num_rounds = 0
         while len(player.destination_cards) > 0:
             num_rounds += 1
-            if player.draw_or_claim(game.graph, game.status) == 0 and game.card_index < len(game.cards):
-                game.draw_cards(player)
+            if player.draw_or_claim(game.graph, game.status) == 0:
+                if game.card_index < len(game.cards):
+                    game.draw_cards(player)
+                else:
+                    print("no")
+                    break
             else:
                 route = player.choose_route(game.graph, game.status)
                 current_status = deepcopy(game.status)

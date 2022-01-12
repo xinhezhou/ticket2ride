@@ -12,6 +12,8 @@ class SolitaireGame:
                 for c in range(num_colors):
                     if (u, v, c) in edges:
                         self.graph[u][v][c] = edges[(u, v, c)]
+                    else:
+                        self.status[u][v][c] = -1
         
         self.cards = deck_cards
         self.card_index = 0

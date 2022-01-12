@@ -103,7 +103,7 @@ def run_Dijkstra(graph, s, t, n):
     return distances[t]
 
 
-def check_path(status, a, b):
+def check_path(status, a, b, id=1):
     """
     use BFS to check if there a path between a and b
     """
@@ -114,10 +114,46 @@ def check_path(status, a, b):
         for u in current:
             for v in range(len(status)):
                 for c in range(len(status[0][0])):
-                    if v not in visited and (status[u][v][c] == 1 or status[v][u][c] == 1):
+                    if v not in visited and (status[u][v][c] == id or status[v][u][c] == id):
                         next_level.add(v)
                         visited.add(v)
         current = next_level
     return b in visited
+
+
+def check_path(status, a, b, id=1):
+    """
+    use BFS to check if there a path between a and b
+    """
+    visited = {a}
+    current = {a}
+    while len(current) != 0:
+        next_level = set()
+        for u in current:
+            for v in range(len(status)):
+                for c in range(len(status[0][0])):
+                    if v not in visited and (status[u][v][c] == id or status[v][u][c] == id):
+                        next_level.add(v)
+                        visited.add(v)
+        current = next_level
+    return b in visited
+
+def check_win(status, players):
+    """
+    -1: ongoing
+    0: tie
+    > 0: id of winner
+    """
+    # print(status)
+    for player in players:
+        if len(player.destination_cards) == 0:
+            return player.id
+    
+    for u in range(len(status)):
+        for v in range(len(status)):
+            if 0 in status[u][v]:
+                return -1
+    return 0
+    
 
 
