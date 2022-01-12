@@ -6,7 +6,7 @@ from utils.game_utils import check_path
 class SolitaireGame:
     def __init__(self, num_vertices, num_colors, edges, deck_cards):
         self.graph = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> w
-        self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied)
+        self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied player id)
         for u in range(num_vertices):
             for v in range(num_vertices):
                 for c in range(num_colors):
