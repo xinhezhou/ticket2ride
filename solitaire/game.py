@@ -1,7 +1,9 @@
 import numpy as np
-from game_utils import check_path
+import sys 
+sys.path.append("..")
+from utils.game_utils import check_path
 
-class Game:
+class SolitaireGame:
     def __init__(self, num_vertices, num_colors, edges, deck_cards):
         self.graph = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> w
         self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied)

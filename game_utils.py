@@ -39,7 +39,7 @@ def get_available_routes(availability):
     
 
 
-def compute_progress (graph, status, route, s, t):
+def compute_progress (graph, status, route, destination_cards):
     """
     Use Dijkstra to compute the progress made by taking the route
     progress is measured by the change in distance between
@@ -57,10 +57,14 @@ def compute_progress (graph, status, route, s, t):
                     # print(g)
                     g[i][j] = max(graph[i][j])
             
-    d1 = run_Dijkstra(g, s, t, n)
+    d1 = 0
+    for s, t in destination_cards:
+        d1 += run_Dijkstra(g, s, t, n)
     u,v,c = route
     g[(u, v)] = 0
-    d2 = run_Dijkstra(g, s, t, n)
+    d2 = 0
+    for s, t in destination_cards:
+        d2 += run_Dijkstra(g, s, t, n)
     return d1 - d2
 
 

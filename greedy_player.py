@@ -3,11 +3,15 @@ import random
 from game_utils import get_available_routes, compute_availability_matrix
 
 class GreedyPlayer:
-    def __init__(self, num_colors, start, end, model=None):
+    def __init__(self, num_colors, destination_cards, model=None):
         self.cards = num_colors * [0]
         self.routes = {}
         self.trains_used = 0 
-        self.explored = {start: 0,  end: 1}
+        self.explored = {}
+        for u,v in destination_cards:
+            self.explored[u] = len(self.explored)
+            self.explored[v] = len(self.explored)
+        self.destination_cards = destination_cards
 
 
     def choose_route(self, graph, status):
@@ -45,7 +49,7 @@ class GreedyPlayer:
         """
         availability = compute_availability_matrix(graph, status, self)
         available_routes = get_available_routes(availability)
-        for u, v, c in available_routes:
-            if u in self.explored or v in self.explored:
-                return 1
-        return 0
+        if len(available_routes) > 0:
+            return 1
+        else:
+            return 0

@@ -2,15 +2,19 @@ import numpy as np
 import torch
 from dqn_utils import compute_dqn_input
 from game_utils import compute_availability_matrix, get_available_routes, compute_progress
+import random
 
 class DQNPlayer:
-    def __init__(self, num_colors, start, end, model):
+    def __init__(self, num_colors, destination_cards, model):
         self.cards = num_colors * [0]
         self.routes = {}
         self.trains_used = 0 
-        self.start = start
-        self.end = end
-        self.explored = {start: 0,  end: 1}
+        self.explored = {}
+        self.destination_cards = destination_cards
+        for u,v in destination_cards:
+            self.explored[u] = len(self.explored)
+            self.explored[v] = len(self.explored)
+            
         self.net = model["net"]
         self.loss_fn = model["loss_fn"]
         self.optimizer = model["optimizer"]
@@ -35,24 +39,38 @@ class DQNPlayer:
                     if action_dist[u][v][c] > best_action_value:
                         best_action_value = action_dist[u][v][c]
                         best_route = u,v,c
+        # print(best_route)
         return best_route
         
         
 
+    # def draw_or_claim(self, graph, status):
+    #     """
+    #     Randomly decide whether to draw 2 more cards or claim a route
+    #     """
+    #     availability = compute_availability_matrix(graph, status, self)
+    #     available_routes = get_available_routes(availability)
+    #     for u, v, c in available_routes:
+    #         if u in self.explored or v in self.explored:
+    #             # print("here", self.explored)
+    #             return 1
+    #     return 0
+
     def draw_or_claim(self, graph, status):
         """
-        If at least one route connects to an explored city, claim a route. Otherwise, draw 2 cards
+        Randomly decide whether to draw 2 more cards or claim a route
         """
         availability = compute_availability_matrix(graph, status, self)
         available_routes = get_available_routes(availability)
-        for u, v, c in available_routes:
-            if u in self.explored or v in self.explored:
-                return 1
-        return 0
+        if len(available_routes) == 0 or random.random() < 0.4:
+            return 0
+        else:
+            return 1
+
 
     def update_model(self, graph, current_status, next_status, current_cards, next_cards, route):
         u,v,c = route
-        reward = compute_progress(graph, current_status, route, self.start, self.end)
+        reward = compute_progress(graph, current_status, route, self.destination_cards)
         current_q_values = self.net(compute_dqn_input(graph, current_status, current_cards))
         current_q_value = torch.reshape(current_q_values, graph.shape)[u][v][c]
         next_input = compute_dqn_input(graph, next_status, next_cards)
