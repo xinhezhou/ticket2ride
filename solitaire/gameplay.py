@@ -90,8 +90,8 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
 
         rounds.append(num_rounds)
         trains.append(player.trains_used)
-        print(player.cards)
-        print(player.routes)
+        # print(player.cards)
+        # print(player.routes)
     if update:
         return rewards, losses
     else:
@@ -106,19 +106,19 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
 # plt.savefig("diagrams/solitaire_dqn_loss.pdf")
 
 
-trains, rounds = play_game(1, SolitaireGame, RandomPlayer)
+trains, rounds = play_game(1000, SolitaireGame, RandomPlayer)
 print(trains)
 print(rounds)
 
 
-# fig, ax = plt.subplots(2)
-# ax[0].hist(trains, density=False, bins=8)
-# ax[0].title.set_text("trains used")
-# ax[1].hist(rounds, density=False, bins=10, range=(0,50))
-# ax[1].title.set_text("number of rounds")
-# fig.tight_layout()
+fig, ax = plt.subplots(2)
+ax[0].hist(trains, density=False, bins=8)
+ax[0].title.set_text("trains used")
+ax[1].hist(rounds, density=False, bins=10, range=(0,50))
+ax[1].title.set_text("number of rounds")
+fig.tight_layout()
 # plt.savefig("diagrams/solitaire_dqn.pdf")
-# plt.show()
+plt.show()
 
 
 
