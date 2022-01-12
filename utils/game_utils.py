@@ -46,6 +46,7 @@ def compute_progress (graph, status, route, destination_cards):
     the origin and the destination, where claimed routes now have
     0 distance
     """
+    # compute graph weights based on train placement
     n = len(graph)
     g = -1 * np.ones((n, n))
     for i in range(len(graph)):
@@ -61,7 +62,7 @@ def compute_progress (graph, status, route, destination_cards):
     for s, t in destination_cards:
         d1 += run_Dijkstra(g, s, t, n)
     u,v,c = route
-    g[(u, v)] = 0
+    g[(u, v)] = 0 # the claimed route now has 0 weight
     d2 = 0
     for s, t in destination_cards:
         d2 += run_Dijkstra(g, s, t, n)
@@ -69,6 +70,10 @@ def compute_progress (graph, status, route, destination_cards):
 
 
 def run_Dijkstra(graph, s, t, n):
+    """
+    Run Dijkstra's algorithm on a graph with nonnegative weights
+    to find the distance of the shortest path between 
+    """
     queue = {}
     for i in range(n):
         queue[i] = 100 # arbitrary big number
@@ -96,9 +101,6 @@ def run_Dijkstra(graph, s, t, n):
 
     # print(graph,distances)
     return distances[t]
-
-
-    
 
 
 def check_path(status, a, b):

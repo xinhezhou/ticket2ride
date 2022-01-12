@@ -1,7 +1,7 @@
-from game import Game
+from solitaire.game import Game
 from players.random_player import Player
-from game_utils import get_possible_routes
-from translate_utils import translate_cards, translate_route
+from utils.game_utils import get_possible_routes
+from utils.translate_utils import translate_cards, translate_route
 
 num_vertices = 6
 num_colors = 10

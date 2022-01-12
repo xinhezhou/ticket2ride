@@ -3,10 +3,17 @@ import torch
 
 
 def compute_dqn_input(graph, status, cards):
+    """
+    Flatten input matrices and concatenate them into 
+    one input vector
+    """
     array = np.concatenate([graph.flatten(), status.flatten(), cards])
     return torch.from_numpy(array).float()
 
-def plot(rewards,losses, ax, batch_size):
+def plot_rewards_losses(rewards,losses, ax, batch_size):
+    """
+    Plot rewards and losses averaged over a batch size
+    """
     average_rewards = []
     average_losses = []
     num_episodes = len(rewards)

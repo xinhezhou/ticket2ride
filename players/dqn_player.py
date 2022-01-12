@@ -26,32 +26,36 @@ class Network(nn.Module):
 
 
 class DQNPlayer:
-    def __init__(self, num_colors, destination_cards, model):
+    def __init__(self, num_colors, destination_cards, model, id=1):
         self.cards = num_colors * [0]
         self.routes = {}
         self.trains_used = 0 
-        self.explored = {}
         self.destination_cards = destination_cards
-        for u,v in destination_cards:
-            self.explored[u] = len(self.explored)
-            self.explored[v] = len(self.explored)
+        self.id = id
             
-        self.net = model["net"]
+        self.card_net = model["card_net"]
+        self.route_net = model["route_net"]
+        self.card_optimizer = model["card_optimizer"]
+        self.route_optimizer = model["route_optimizer"]
         self.loss_fn = model["loss_fn"]
-        self.optimizer = model["optimizer"]
         self.gamma = model["gamma"]
 
 
     def choose_route(self, graph, status):
         """
-        chooses a route based on the policy network (model)
+        chooses a route based on the route policy network (route_net)
+        and the availability of routes
         """
         availability = compute_availability_matrix(graph, status, self)
+        if random.random() < 0.2:
+            available_routes = get_available_routes(availability)
+            return random.choice(available_routes)
         dqn_input = compute_dqn_input(graph, status, self.cards)
-        dqn_output = self.net(dqn_input)
-        # print(dqn_input.shape, dqn_output.shape, availability.shape)
+        dqn_output = self.route_net(dqn_input)
         dqn_output = torch.reshape(dqn_output, availability.shape)
         action_dist = torch.mul(dqn_output, torch.from_numpy(availability))
+        
+        # compute the availabile route with the highest value
         best_route = 0,0,0
         best_action_value = 0
         for u in range(len(availability)):
@@ -63,44 +67,50 @@ class DQNPlayer:
         # print(best_route)
         return best_route
         
-        
-
-    # def draw_or_claim(self, graph, status):
-    #     """
-    #     Randomly decide whether to draw 2 more cards or claim a route
-    #     """
-    #     availability = compute_availability_matrix(graph, status, self)
-    #     available_routes = get_available_routes(availability)
-    #     for u, v, c in available_routes:
-    #         if u in self.explored or v in self.explored:
-    #             # print("here", self.explored)
-    #             return 1
-    #     return 0
 
     def draw_or_claim(self, graph, status):
         """
-        Randomly decide whether to draw 2 more cards or claim a route
+        Choose the action associated withe the highest value
+        based on the card policy
         """
         availability = compute_availability_matrix(graph, status, self)
         available_routes = get_available_routes(availability)
-        if len(available_routes) == 0 or random.random() < 0.4:
+        if len(available_routes) == 0:
             return 0
-        else:
+        elif random.random() < 0.2:
             return 1
-
+        dqn_input = compute_dqn_input(graph, status, self.cards)
+        dqn_output = self.card_net(dqn_input)
+        # print(dqn_output)
+        return torch.argmax(dqn_output)
 
     def update_model(self, graph, current_status, next_status, current_cards, next_cards, route):
+        """
+        Update policy networks through back propagation
+        """
         u,v,c = route
         reward = compute_progress(graph, current_status, route, self.destination_cards)
-        current_q_values = self.net(compute_dqn_input(graph, current_status, current_cards))
-        current_q_value = torch.reshape(current_q_values, graph.shape)[u][v][c]
+        current_input = compute_dqn_input(graph, current_status, current_cards)
         next_input = compute_dqn_input(graph, next_status, next_cards)
-        next_best_q = max(self.net(next_input))
-        expected_q_avlue = reward + self.gamma * next_best_q
 
+        # update the card policy net
+        current_q_values = self.card_net(current_input)
+        current_q_value = current_q_values[1]
+        next_best_q = max(self.card_net(next_input))
+        expected_q_avlue = reward + self.gamma * next_best_q
         loss = self.loss_fn(current_q_value, expected_q_avlue)
-        self.optimizer.zero_grad()
+        self.card_optimizer.zero_grad()
         loss.backward()
-        self.optimizer.step()
+        self.card_optimizer.step()
+
+        # update the route policy net
+        current_q_values = self.route_net(current_input)
+        current_q_value = torch.reshape(current_q_values, graph.shape)[u][v][c]
+        next_best_q = max(self.route_net(next_input))
+        expected_q_avlue = reward + self.gamma * next_best_q
+        loss = self.loss_fn(current_q_value, expected_q_avlue)
+        self.route_optimizer.zero_grad()
+        loss.backward()
+        self.route_optimizer.step()
 
         return reward, loss.item()
