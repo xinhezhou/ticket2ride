@@ -1,5 +1,5 @@
 from game import Game
-from random_player import Player
+from players.random_player import Player
 from game_utils import get_possible_routes
 from translate_utils import translate_cards, translate_route
 

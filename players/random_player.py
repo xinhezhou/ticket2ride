@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from game_utils import get_available_routes, compute_availability_matrix
+from utils.game_utils import get_available_routes, compute_availability_matrix
 
 class RandomPlayer:
     def __init__(self, num_colors, destination_cards, model=None):
