@@ -36,7 +36,7 @@ class SolitaireGame:
         self.status[u][v][c] = player.id
         
         count = self.graph[u][v][c]
-        player.trains_used += count
+        player.trains -= count
         player.routes[(u,v)] = c
         if player.cards[c] >= count:
             player.cards[c] -= count
@@ -46,7 +46,7 @@ class SolitaireGame:
 
         incomplete_destinations = []
         for u, v in player.destination_cards:
-            if not check_path(self.status, u, v):
+            if not check_path(self.status, u, v, player.id):
                 incomplete_destinations.append((u,v))
         player.destination_cards = incomplete_destinations
 
@@ -55,6 +55,7 @@ class SolitaireGame:
         """
         draw 2 cards from the private deck
         """
+        np.random.shuffle(self.cards) 
         player.cards[self.cards[self.card_index]] += 1
         player.cards[self.cards[self.card_index+1]] += 1
         self.card_index += 2

@@ -1,5 +1,7 @@
 from solitaire.game import SolitaireGame
 from players.random_player import RandomPlayer
+from players.greedy_player import GreedyPlayer
+from players.frugal_player import FrugalPlayer
 from utils.dqn_utils import plot_rewards_losses
 from utils.game_utils import check_win
 
@@ -36,12 +38,24 @@ edges = {
   (5, 6, 2): 3,
   (5, 6, 3): 3,
 }
+
+destinations = [
+    (1, 5),
+    (1, 3),
+    (3, 6),
+    (1, 6),
+    (0, 6)
+]
+
+
 destination_cards_a = [
-    (0, 6),
+    (1, 3),
+    (1, 6)
 ]
 
 destination_cards_b = [
-    (1, 5),
+    (0, 6),
+    (3, 6)
 ]
 
 
@@ -50,14 +64,15 @@ def play_game(iterations, game_class, player_class_a, player_class_b, model=None
     Simulate gameplay and record number of rounds and trains used each time
     """
     winners = []
-    losses = []
-    rewards = []
+    rounds = []
+    trains_a = []
+    trains_b = []
 
     for _ in range(iterations):
         np.random.shuffle(deck_cards) 
         game = game_class(num_vertices, num_route_colors, edges, deck_cards)
-        player_a = player_class_a(num_card_colors, destination_cards_a, model, 1)
-        player_b = player_class_b(num_card_colors, destination_cards_b, model, 2)
+        player_a = player_class_a(num_card_colors, destination_cards_a, 10, model, 1)
+        player_b = player_class_b(num_card_colors, destination_cards_b, 10, model, 2)
         game.draw_cards(player_a)
         game.draw_cards(player_a)
         game.draw_cards(player_b)
@@ -65,38 +80,44 @@ def play_game(iterations, game_class, player_class_a, player_class_b, model=None
 
         player_index = 0
         players = [player_a, player_b]
-        while check_win(game.status, players) == -1:
+        round = 0
+        while check_win(game, players) == -1:
             player = players[player_index]
-            if player.draw_or_claim(game.graph, game.status) == 0:
-                if game.card_index < len(game.cards):
-                    game.draw_cards(player)
-                else:
-                    print("no")
-                    break
+            if player.draw_or_claim(game) == 0:
+                game.draw_cards(player)
             else:
-                route = player.choose_route(game.graph, game.status)
-                current_status = deepcopy(game.status)
+                route = player.choose_route(game)
+                current_status = deepcopy(game)
                 current_cards = player.cards[:]
                 game.claim_route(route, player)
-                if update:
-                    reward, loss = player.update_model(game.graph, current_status, game.status, current_cards, player.cards, route)
-                    losses.append(loss)
-                    rewards.append(reward)
 
             player_index = (player_index + 1) % 2
+            round += 1
+
         
-        winners.append(check_win(game.status, players))
+        winners.append(check_win(game, players))
+        rounds.append(round)
+        trains_a.append(player_a.trains)
+        trains_b.append(player_b.trains)
+
         # print(player.cards)
-        # print(player.routes)
-    if update:
-        return winners
-    else:
-        return winners
-
-
-winners = play_game(10, SolitaireGame, RandomPlayer, RandomPlayer)
-print(winners)
-# plt.show()
+        # print(player_a.routes, player_b.routes)
+    return winners, trains_a, trains_b, rounds
+    
+    
+winners, trains_a, trains_b, rounds = play_game(1000, SolitaireGame, FrugalPlayer, FrugalPlayer)
+# print(winners, trains_a, trains_b)
+fig, ax = plt.subplots(4)
+ax[0].hist(trains_a, density=False, bins=8)
+ax[0].title.set_text("A trains left")
+ax[1].hist(trains_b, density=False, bins=8)
+ax[1].title.set_text("B trains left")
+ax[2].hist(rounds, density=False, bins=10)
+ax[2].title.set_text("number of rounds")
+ax[3].hist(winners, density=False, bins=3,)
+ax[3].title.set_text("winner")
+fig.tight_layout()
+plt.show()
 
 
 

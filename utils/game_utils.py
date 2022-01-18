@@ -19,7 +19,7 @@ def compute_availability_matrix(graph, status, player):
     for u in range(len(availability)):
         for v in range(len(availability)):
             for c in range(len(availability[0][0])):
-                if (u, v) not in player.routes and graph[u][v][c] > 0 and  status[u][v][c] == 0 and player.cards[0] + player.cards[c] >= graph[u][v][c]:
+                if (u, v) not in player.routes and graph[u][v][c] > 0 and  status[u][v][c] == 0 and player.cards[0] + player.cards[c] >= graph[u][v][c] and player.trains >= graph[u][v][c]:
                     availability[u][v][c] = 1
     return availability
 
@@ -39,7 +39,7 @@ def get_available_routes(availability):
     
 
 
-def compute_progress (graph, status, route, destination_cards):
+def compute_progress (graph, status, route, destination_cards, id):
     """
     Use Dijkstra to compute the progress made by taking the route
     progress is measured by the change in distance between
@@ -52,7 +52,7 @@ def compute_progress (graph, status, route, destination_cards):
     for i in range(len(graph)):
         for j in range(len(graph)):
             if max(graph[i][j]) != 0:
-                if 1 in status[i][j]:
+                if id in status[i][j]:
                     g[i][j] = 0
                 else:
                     # print(g)
@@ -138,21 +138,32 @@ def check_path(status, a, b, id=1):
         current = next_level
     return b in visited
 
-def check_win(status, players):
+def check_win(game, players):
     """
     -1: ongoing
     0: tie
     > 0: id of winner
     """
     # print(status)
+    # print(status)
     for player in players:
         if len(player.destination_cards) == 0:
             return player.id
+        if game.card_index >= len(game.cards) or player.trains == 0:
+            if len(players[0].destination_cards) == len(players[1].destination_cards):
+                # print(player.routes, player.destination_cards)
+                return 0
+            elif len(players[0].destination_cards) > len(players[1].destination_cards):
+                return players[1].id
+            else:
+                return players[0].id
     
-    for u in range(len(status)):
-        for v in range(len(status)):
-            if 0 in status[u][v]:
+    for u in range(len(game.status)):
+        for v in range(len(game.status)):
+            if 0 in game.status[u][v]:
                 return -1
+
+    # print(status)
     return 0
     
 
