@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 import torch.nn as nn
 import torch.optim as optim
+import random
 
 #########################
 ###    Game Setup    ####
@@ -53,15 +54,10 @@ destinations = [
 
 def initialize_game():
     game = Game(num_vertices, num_route_colors, edges, deck_cards)
-    destination_cards_a = [
-    (1, 3),
-    (1, 6)
-    ]
-
-    destination_cards_b = [
-        (0, 6),
-        (3, 6)
-    ]
+    sample = np.random.choice(5, 4, False)
+    destination_cards_a = [destinations[sample[0]], destinations[sample[1]]]
+    destination_cards_b = [destinations[sample[2]], destinations[sample[3]]]
+    print("Player 2: ", destination_cards_a)
     player_a = GreedyPlayer(num_card_colors, destination_cards_a, 10, 1)
     player_b = GreedyPlayer(num_card_colors, destination_cards_b, 10, 2)
     game.draw_cards(player_a)
@@ -84,7 +80,6 @@ def play_game(iterations, logging=True):
         record = {}
         np.random.shuffle(deck_cards) 
         record["deck"] = deck_cards
-
         
         player_index = 0
         game, players = initialize_game()
@@ -92,17 +87,42 @@ def play_game(iterations, logging=True):
         winner = -1
         while winner == -1:
             player = players[player_index]
+            print("player: ", player.id, player.cards)
             availability = compute_availability_matrix(game.graph, game.status, player)
-            if len(get_available_routes(availability)) == 0 or player.draw_or_claim(game) == 0:
-                cards = game.draw_cards(player)
-                actions.append(cards)
+            available_routes = get_available_routes(availability)
+            if player_index == 1:
+                if len(available_routes) == 0 or player.draw_or_claim(game) == 0:
+                    cards = game.draw_cards(player)
+                    print("draw cards")
+                    actions.append(cards)
+                else:
+                    route = player.choose_route(game) 
+                    print("claim route: ", route)
+                    game.claim_route(route, player)
+                    actions.append(route)
             else:
-                route = player.choose_route(game) 
-                game.claim_route(route, player)
-                actions.append(route)
+                if len(available_routes) == 0:
+                    cards = game.draw_cards(player)
+                    print("draw cards: ", cards)
+                    actions.append(cards)
+                else:
+                    print("draw (0) or claim(1)? ")
+                    res = int(input())
+                    if res == 0:
+                        cards = game.draw_cards(player)
+                        print("draw cards: ", cards)
+                        actions.append(cards)
+                    else:
+                        print("Choose one out of the following routes: ", available_routes)
+                        # print(route)
+                        res = list(input())
+                        route = int(res[0]), int(res[1]), int(res[2])
+                        game.claim_route(route, player)
+                        actions.append(route)
 
             player_index = (player_index + 1) % 2
             winner = check_win(game, players)
+            print("\n")
 
         record["actions"] = actions
         record["winner"] = winner
@@ -114,10 +134,8 @@ def play_game(iterations, logging=True):
     return winners, records
     
     
-winners, records = play_game(1000)
+winners, records = play_game(1)
 # print(records)
-with open("greedy_greedy.json", "w") as outfile:
-    json.dump(records, outfile)
 # # print(winners, trains_a, trains_b)
 # fig, ax = plt.subplots(4)
 # ax[0].hist(trains_a, density=False, bins=8)

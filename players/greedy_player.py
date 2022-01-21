@@ -3,7 +3,7 @@ import random
 from utils.game_utils import compute_availability_matrix, get_available_routes, compute_progress
 
 class GreedyPlayer:
-    def __init__(self, num_colors, destination_cards, trains, model=None, id=1):
+    def __init__(self, num_colors, destination_cards, trains, id):
         self.cards = num_colors * [0]
         self.routes = {}
         self.trains = trains
@@ -39,7 +39,7 @@ class GreedyPlayer:
         route_progress = []
         for route in available_routes:
             route_progress.append(compute_progress(graph, status, route, self.destination_cards, self.id))
-        if len(route_progress) == 0 or max(route_progress) == 0:
+        if max(route_progress) == 0:
             return 0
         else:
             return 1

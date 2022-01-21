@@ -42,23 +42,6 @@ destination_cards = [
     (0, 6),
 ]
 
-#########################
-###    DQN Setup     ####
-#########################
-num_inputs = (num_vertices * num_vertices * num_route_colors) * 2 +  + num_card_colors
-num_outputs = num_vertices * num_vertices * num_route_colors
-route_net = Network(num_inputs, num_outputs, 100, "cpu")
-card_net = Network(num_inputs, 2, 100, "cpu")
-model = {
-    "route_net": route_net,
-    "card_net": card_net,
-    "loss_fn": nn.SmoothL1Loss(),
-    "route_optimizer":optim.Adam(route_net.parameters()),
-    "card_optimizer": optim.Adam(card_net.parameters()),
-    "gamma": 0.9,
-}
-
-
 def play_game(iterations, game_class, player_class, model=None, update=False):
     """
     Simulate gameplay and record number of rounds and trains used each time
@@ -103,24 +86,24 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
     else:
         return trains, rounds
 
-rewards, losses = play_game(5000, SolitaireGame, DQNPlayer, model, True)
-print(rewards)
-print(losses)
-fig, ax = plt.subplots(2)
-plot_rewards_losses(rewards, losses, ax, 50)
-plt.savefig("../diagrams/solitaire_dqn_rewards_losses.pdf")
+# rewards, losses = play_game(5000, SolitaireGame, DQNPlayer, model, True)
+# print(rewards)
+# print(losses)
+# fig, ax = plt.subplots(2)
+# plot_rewards_losses(rewards, losses, ax, 50)
+# plt.savefig("../diagrams/solitaire_dqn_rewards_losses.pdf")
 
-trains, rounds = play_game(1000, SolitaireGame, DQNPlayer, model, False)
-print(trains)
-print(rounds)
-fig, ax = plt.subplots(2)
-ax[0].hist(trains, density=False, bins=8)
-ax[0].title.set_text("trains used")
-ax[1].hist(rounds, density=False, bins=10, range=(0,50))
-ax[1].title.set_text("number of rounds")
-fig.tight_layout()
-plt.savefig("../diagrams/solitaire_dqn.pdf")
-# plt.show()
+# trains, rounds = play_game(1000, SolitaireGame, DQNPlayer, model, False)
+# print(trains)
+# print(rounds)
+# fig, ax = plt.subplots(2)
+# ax[0].hist(trains, density=False, bins=8)
+# ax[0].title.set_text("trains used")
+# ax[1].hist(rounds, density=False, bins=10, range=(0,50))
+# ax[1].title.set_text("number of rounds")
+# fig.tight_layout()
+# plt.savefig("../diagrams/solitaire_dqn.pdf")
+# # plt.show()
 
 
 

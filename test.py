@@ -1,4 +1,4 @@
-from solitaire.game import Game
+from game import Game
 from players.random_player import Player
 from utils.game_utils import get_possible_routes
 from utils.translate_utils import translate_cards, translate_route

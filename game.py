@@ -3,7 +3,7 @@ import sys
 sys.path.append("..")
 from utils.game_utils import check_path
 
-class SolitaireGame:
+class Game:
     def __init__(self, num_vertices, num_colors, edges, deck_cards):
         self.graph = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> w
         self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied player id)
@@ -42,8 +42,7 @@ class SolitaireGame:
             player.cards[c] -= count
         else:
             player.cards[0] -= count - player.cards[c]
-            player.cards[c] = 1
-
+            
         incomplete_destinations = []
         for u, v in player.destination_cards:
             if not check_path(self.status, u, v, player.id):
@@ -55,10 +54,11 @@ class SolitaireGame:
         """
         draw 2 cards from the private deck
         """
-        np.random.shuffle(self.cards) 
+        cards = self.cards[self.card_index:self.card_index+2]
         player.cards[self.cards[self.card_index]] += 1
         player.cards[self.cards[self.card_index+1]] += 1
         self.card_index += 2
+        return cards
 
 
 
