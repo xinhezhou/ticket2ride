@@ -13,51 +13,47 @@ import torch.nn as nn
 import torch.optim as optim
 import random
 
-#########################
-###    Game Setup    ####
-#########################
-num_vertices = 7
-num_route_colors = 7
-num_card_colors = 7
-deck_cards = [0] * 12  + [1,2,3,4,5,6] * 10 # train cards in the deck
-edges = {
-  (0, 1, 2): 1,
-  (0, 3, 2): 3,
-  (0, 3, 5): 3,
-  (0, 4, 6): 2,
-  (1, 2, 6): 2,
-  (1, 4, 1): 2,
-  (1, 4, 2): 2,
-  (2, 4, 1): 1,
-  (2, 4, 3): 1,
-  (2, 6, 6): 2,
-  (3, 4, 4): 2,
-  (3, 5, 4): 1,
-  (3, 5, 6): 1,
-  (4, 5, 3): 2,
-  (4, 5, 6): 2,
-  (4, 6, 6): 3,
-  (5, 6, 2): 3,
-  (5, 6, 3): 3,
-}
-
-destinations = [
-    (1, 5),
-    (1, 3),
-    (3, 6),
-    (1, 6),
-    (0, 6)
-]
-
-
-
 
 def initialize_game():
+    num_vertices = 7
+    num_route_colors = 7
+    num_card_colors = 7
+    deck_cards = [0] * 12  + [1,2,3,4,5,6] * 10 # train cards in the deck
+    edges = {
+    (0, 1, 2): 1,
+    (0, 3, 2): 3,
+    (0, 3, 5): 3,
+    (0, 4, 6): 2,
+    (1, 2, 6): 2,
+    (1, 4, 1): 2,
+    (1, 4, 2): 2,
+    (2, 4, 1): 1,
+    (2, 4, 3): 1,
+    (2, 6, 6): 2,
+    (3, 4, 4): 2,
+    (3, 5, 4): 1,
+    (3, 5, 6): 1,
+    (4, 5, 3): 2,
+    (4, 5, 6): 2,
+    (4, 6, 6): 3,
+    (5, 6, 2): 3,
+    (5, 6, 3): 3,
+    }
+
+    destinations = [
+        (1, 5),
+        (1, 3),
+        (3, 6),
+        (1, 6),
+        (0, 6)
+    ]
+
+    np.random.shuffle(deck_cards) 
     game = Game(num_vertices, num_route_colors, edges, deck_cards)
     sample = np.random.choice(5, 4, False)
     destination_cards_a = [destinations[sample[0]], destinations[sample[1]]]
     destination_cards_b = [destinations[sample[2]], destinations[sample[3]]]
-    print("Player 2: ", destination_cards_a)
+    print("Player 1: ", destination_cards_a)
     player_a = GreedyPlayer(num_card_colors, destination_cards_a, 10, 1)
     player_b = GreedyPlayer(num_card_colors, destination_cards_b, 10, 2)
     game.draw_cards(player_a)
@@ -78,11 +74,12 @@ def play_game(iterations, logging=True):
 
     for i in range(iterations):
         record = {}
-        np.random.shuffle(deck_cards) 
-        record["deck"] = deck_cards
-        
+
         player_index = 0
         game, players = initialize_game()
+        record["deck"] = game.cards
+        record["destinations_a"] = players[0].destination_cards
+        record["destinations_b"] = players[1].destination_cards
         actions = []
         winner = -1
         while winner == -1:
@@ -135,6 +132,9 @@ def play_game(iterations, logging=True):
     
     
 winners, records = play_game(1)
+
+with open("self_greedy_0123.json", "w") as outfile:
+    json.dump(records, outfile)
 # print(records)
 # # print(winners, trains_a, trains_b)
 # fig, ax = plt.subplots(4)
