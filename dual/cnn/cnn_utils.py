@@ -90,12 +90,13 @@ def generate_state_matrix(game, players):
     """
     matrices = []
     v = len(game.graph)
-    matrices.append(generate_multigraph_matrix(game.graph, 4))
-    matrices.append(generate_deck_matrix(game.cards, game.card_index, v))
+    matrices.append(generate_multigraph_matrix(game.graph, 4)) # 28 * 7 * 7
+    matrices.append(generate_multigraph_matrix(game.status, 2)) # 14  * 7 * 7
+    matrices.append(generate_deck_matrix(game.cards, game.card_index, v)) # 72 * 7 * 7
     for player in players:
-        matrices.append(generate_destination_cards_matrix(player.destination_cards, v))
-        matrices.append(generate_train_cards_matrix(player.cards, 12, v))
-        matrices.append(generate_train_matrix(player.trains, 10, v))
+        matrices.append(generate_destination_cards_matrix(player.destination_cards, v)) # 2 * 7 * 7
+        matrices.append(generate_train_cards_matrix(player.cards, 12, v)) # 24 * 7 * 7
+        matrices.append(generate_train_matrix(player.trains, 10, v)) # 0 * 7 * 7
 
     return torch.cat(matrices)
 
@@ -134,11 +135,10 @@ def generate_gameplay(records, memory):
         player_a = RandomPlayer(num_card_colors, record["destinations_a"], 10, 1)
         player_b = RandomPlayer(num_card_colors, record["destinations_b"], 10, 2)
         players = [player_a, player_b]
-        player_index = 0
         for action in record["actions"]:
             reward = 0
             state = generate_state_matrix(game, players).unsqueeze(0)
-            player = players[player_index]
+            player = players[0]
             if len(action) == 2:
                 choice = 0
                 game.draw_cards(player)
@@ -149,8 +149,9 @@ def generate_gameplay(records, memory):
                 if action == record["actions"][-1]:
                     reward = 1
             next_state = generate_state_matrix(game, players).unsqueeze(0)
-            memory.push(state, torch.tensor([[choice]]), next_state, torch.tensor([reward]))
-            player_index = (player_index + 1) % 2
+            if player.id == 1:
+                memory.push(state, torch.tensor([[choice]]), next_state, torch.tensor([reward]))
+            players = players[::-1]
             
 
 def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE, GAMMA):

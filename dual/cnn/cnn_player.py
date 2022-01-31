@@ -18,12 +18,12 @@ class CNNPlayer:
         self.net = model
      
 
-    def choose_route(self, game):
+    def choose_route(self, game, players):
         """
         chooses a route based on the route policy network (route_net)
         and the availability of routes
         """
-        dqn_input = generate_state_matrix(game, self.players).unsqueeze(0)
+        dqn_input = generate_state_matrix(game, players).unsqueeze(0)
         dqn_output = self.net(dqn_input)
         availability = compute_availability_matrix(game.graph, game.status, self)
         availability = np.reshape(availability, (7*7*7, 1))
@@ -36,12 +36,12 @@ class CNNPlayer:
         return u, v, c
         
 
-    def draw_or_claim(self, game):
+    def draw_or_claim(self, game, players):
         """
         Choose the action associated withe the highest value
         based on the card policy
         """
-        dqn_input = generate_state_matrix(game, self.players).unsqueeze(0)
+        dqn_input = generate_state_matrix(game, players).unsqueeze(0)
         dqn_output = self.net(dqn_input)
         if dqn_output[0][0] == max(dqn_output[0]):
             return 0

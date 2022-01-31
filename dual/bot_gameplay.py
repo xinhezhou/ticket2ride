@@ -21,17 +21,17 @@ def play_game(iterations, initialize_game):
         actions = []
         winner = -1
         while winner == -1:
-            player = players[player_index]
+            player = players[0]
             availability = compute_availability_matrix(game.graph, game.status, player)
-            if len(get_available_routes(availability)) == 0 or player.draw_or_claim(game) == 0:
+            if len(get_available_routes(availability)) == 0 or player.draw_or_claim(game, players) == 0:
                 cards = game.draw_cards(player)
                 actions.append(cards)
             else:
-                route = player.choose_route(game) 
+                route = player.choose_route(game, players) 
                 game.claim_route(route, player)
                 actions.append(route)
 
-            player_index = (player_index + 1) % 2
+            players = players[::-1]
             winner = check_win(game, players)
 
         record["actions"] = actions
