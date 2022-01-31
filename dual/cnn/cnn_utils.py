@@ -92,7 +92,7 @@ def generate_state_matrix(game, players):
     v = len(game.graph)
     matrices.append(generate_multigraph_matrix(game.graph, 4)) # 28 * 7 * 7
     matrices.append(generate_multigraph_matrix(game.status, 2)) # 14  * 7 * 7
-    # matrices.append(generate_deck_matrix(game.cards, game.card_index, v)) # 72 * 7 * 7
+    matrices.append(generate_deck_matrix(game.cards, game.card_index, v)) # 72 * 7 * 7
     for player in players:
         matrices.append(generate_destination_cards_matrix(player.destination_cards, v)) # 2 * 7 * 7
         matrices.append(generate_train_cards_matrix(player.cards, 12, v)) # 24 * 7 * 7
