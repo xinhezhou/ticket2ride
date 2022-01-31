@@ -11,7 +11,7 @@ class FrugalPlayer:
         self.id = id
 
 
-    def choose_route(self, game):
+    def choose_route(self, game, players):
         """
         Find all possible routes and chooses a route that makes
         the most progress
@@ -27,7 +27,7 @@ class FrugalPlayer:
         return available_routes[np.argmax(route_progress)]
 
 
-    def draw_or_claim(self, game):
+    def draw_or_claim(self, game, players):
         """
         If there is at least one path that can be completed, claim a route (1).
         Otherwise, draw 2 cards (0)

@@ -11,7 +11,7 @@ class RandomPlayer:
         self.id = id
 
 
-    def choose_route(self, game):
+    def choose_route(self, game, players):
         """
         Find all possible routes and randomly choose one to take
         """
@@ -19,7 +19,7 @@ class RandomPlayer:
         available_routes = get_available_routes(availability)
         return random.choice(available_routes)
 
-    def draw_or_claim(self, game):
+    def draw_or_claim(self, game, players):
         """
         Randomly decide whether to draw 2 more cards (0) or claim a route (1)
         """
