@@ -3,15 +3,17 @@ import sys
 sys.path.append("..")
 from utils.game_utils import check_path
 
-class SolitaireGame:
+class Game:
     def __init__(self, num_vertices, num_colors, edges, deck_cards):
         self.graph = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> w
-        self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied)
+        self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied player id)
         for u in range(num_vertices):
             for v in range(num_vertices):
                 for c in range(num_colors):
                     if (u, v, c) in edges:
                         self.graph[u][v][c] = edges[(u, v, c)]
+                    else:
+                        self.status[u][v][c] = -1
         
         self.cards = deck_cards
         self.card_index = 0
@@ -31,20 +33,19 @@ class SolitaireGame:
         """
         u,v,c = route
         assert u < v
-        self.status[u][v][c] = 1
+        self.status[u][v][c] = player.id
         
         count = self.graph[u][v][c]
-        player.trains_used += count
+        player.trains -= count
         player.routes[(u,v)] = c
         if player.cards[c] >= count:
             player.cards[c] -= count
         else:
             player.cards[0] -= count - player.cards[c]
-            player.cards[c] = 1
-
+            
         incomplete_destinations = []
         for u, v in player.destination_cards:
-            if not check_path(self.status, u, v):
+            if not check_path(self.status, u, v, player.id):
                 incomplete_destinations.append((u,v))
         player.destination_cards = incomplete_destinations
 
@@ -53,9 +54,11 @@ class SolitaireGame:
         """
         draw 2 cards from the private deck
         """
+        cards = self.cards[self.card_index:self.card_index+2]
         player.cards[self.cards[self.card_index]] += 1
         player.cards[self.cards[self.card_index+1]] += 1
         self.card_index += 2
+        return cards
 
 
 

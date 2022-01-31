@@ -1,15 +1,15 @@
 from game import SolitaireGame
 from players.random_player import RandomPlayer
-# from utils.game_utils import check_path, compute_availability_matrix
-# from utils.dqn_utils import plot
-# from utils.translate_utils import translate_route
+from players.greedy_player import GreedyPlayer
+from players.frugal_player import FrugalPlayer
+from players.dqn_player import DQNPlayer, Network
+from utils.dqn_utils import plot_rewards_losses
 
 import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
-# import torch
-# import torch.nn as nn
-# import torch.optim as optim
+import torch.nn as nn
+import torch.optim as optim
 
 #########################
 ###    Game Setup    ####
@@ -42,21 +42,10 @@ destination_cards = [
     (0, 6),
 ]
 
-#########################
-###    DQN Setup     ####
-#########################
-# num_inputs = (num_vertices * num_vertices * num_route_colors) * 2 +  + num_card_colors
-# num_outputs = num_vertices * num_vertices * num_route_colors
-# policy_net = Network(num_inputs, num_outputs, 100, "cpu")
-# model = {
-#     "net": policy_net,
-#     "loss_fn": nn.SmoothL1Loss(),
-#     "optimizer":optim.Adam(policy_net.parameters()),
-#     "gamma": 0.9,
-# }
-
-
 def play_game(iterations, game_class, player_class, model=None, update=False):
+    """
+    Simulate gameplay and record number of rounds and trains used each time
+    """
     trains = []
     rounds = []
     losses = []
@@ -65,7 +54,7 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
     for _ in range(iterations):
         np.random.shuffle(deck_cards) 
         game = game_class(num_vertices, num_route_colors, edges, deck_cards)
-        player = player_class(num_card_colors, destination_cards)
+        player = player_class(num_card_colors, destination_cards, model)
         game.draw_cards(player)
         game.draw_cards(player)
         num_rounds = 0
@@ -75,7 +64,7 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
                 if game.card_index < len(game.cards):
                     game.draw_cards(player)
                 else:
-                    print("heck")
+                    print("no")
                     break
             else:
                 route = player.choose_route(game.graph, game.status)
@@ -90,35 +79,31 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
 
         rounds.append(num_rounds)
         trains.append(player.trains_used)
-        print(player.cards)
-        print(player.routes)
+        # print(player.cards)
+        # print(player.routes)
     if update:
         return rewards, losses
     else:
         return trains, rounds
 
-
-# rewards, losses = play_game(1000, True)
+# rewards, losses = play_game(5000, SolitaireGame, DQNPlayer, model, True)
 # print(rewards)
 # print(losses)
 # fig, ax = plt.subplots(2)
-# plot(rewards, losses, ax, 50)
-# plt.savefig("diagrams/solitaire_dqn_loss.pdf")
+# plot_rewards_losses(rewards, losses, ax, 50)
+# plt.savefig("../diagrams/solitaire_dqn_rewards_losses.pdf")
 
-
-trains, rounds = play_game(1, SolitaireGame, RandomPlayer)
-print(trains)
-print(rounds)
-
-
+# trains, rounds = play_game(1000, SolitaireGame, DQNPlayer, model, False)
+# print(trains)
+# print(rounds)
 # fig, ax = plt.subplots(2)
 # ax[0].hist(trains, density=False, bins=8)
 # ax[0].title.set_text("trains used")
 # ax[1].hist(rounds, density=False, bins=10, range=(0,50))
 # ax[1].title.set_text("number of rounds")
 # fig.tight_layout()
-# plt.savefig("diagrams/solitaire_dqn.pdf")
-# plt.show()
+# plt.savefig("../diagrams/solitaire_dqn.pdf")
+# # plt.show()
 
 
 
