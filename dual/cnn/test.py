@@ -4,7 +4,7 @@ import json
 from cnn_utils import generate_gameplay, optimize_model
 from cnn_network import Network
 from cnn_player import CNNPlayer
-from test_player import TestPlayer
+# from test_player import TestPlayer
 import torch.optim as optim
 import torch
 import numpy as np
@@ -15,14 +15,15 @@ from game import Game
 from nonRLplayers.random_player import RandomPlayer
 import matplotlib.pyplot as plt
 
-policy_net = Network((160, 7, 7), 7*7*7+1, 32)
-target_net = Network((160, 7, 7), 7*7*7+1, 32)
+policy_net = Network((88, 7, 7), 7*7*7+1, 32)
+target_net = Network((88, 7, 7), 7*7*7+1, 32)
 
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
-optimizer = optim.RMSprop(policy_net.parameters(), lr=0.0001)
-BATCH_SIZE = 10
-GAMMA = 0.9
+optimizer = optim.RMSprop(policy_net.parameters())
+BATCH_SIZE = 128
+GAMMA = 0.999
+TARGET_UPDATE = 10
 losses = []
 
 def initialize_game():
@@ -64,15 +65,13 @@ def initialize_game():
     # sample = np.random.choice(5, 4, False)
     destination_cards_a = [(1, 3), (1, 6)]
     destination_cards_b = [(0, 6), (3, 6)]
-    player_a = CNNPlayer(num_card_colors, destination_cards_a, 10, 2, target_net)
-    player_b = RandomPlayer(num_card_colors, destination_cards_b, 10, 1,)
+    player_a = CNNPlayer(num_card_colors, destination_cards_a, 10, 1, target_net)
+    player_b = RandomPlayer(num_card_colors, destination_cards_b, 10, 2,)
     game.draw_cards(player_a)
     game.draw_cards(player_a)
     game.draw_cards(player_b)
     game.draw_cards(player_b)
-    players = [player_b, player_a]
-    player_a.players = players
-    player_b.players = players
+    players = [player_a, player_b]
 
     return game, players
 
@@ -81,8 +80,7 @@ def initialize_game():
 # f = open("../greedy_random_fixed.json")
 # records = json.load(f)
 # generate_gameplay(records, memory)
-
-
+# print("done processing")
 # for _ in range(1000):
 #     for i in range(10):
 #         optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE, GAMMA)
@@ -90,14 +88,14 @@ def initialize_game():
 
 # torch.save({
 #             'state_dict': target_net.state_dict(),
-#         }, "greedy_random_fixed.pth.tar")
+#         }, "greedy_random_simple.pth.tar")
 
 # plt.plot(range(len(losses)), losses)
 # plt.show()
 
 
 
-checkpoint = torch.load("greedy_random_fixed.pth.tar")
+checkpoint = torch.load("greedy_random_simple.pth.tar")
 target_net.load_state_dict(checkpoint['state_dict'])
 winners, records = play_game(1000, initialize_game)
 print(winners)
