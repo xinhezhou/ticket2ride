@@ -13,7 +13,6 @@ def play_game(iterations, initialize_game):
 
     for i in range(iterations):
         record = {}
-        player_index = 0
         game, players = initialize_game()
         record["deck"] = game.cards
         record["destinations_a"] = players[0].destination_cards

@@ -56,7 +56,7 @@ def initialize_game():
 
     return game, players
 
-winners, records = play_game(1000, initialize_game)
-with open("greedy_random_fixed.json", "w") as outfile:
+winners, records = play_game(10000, initialize_game)
+with open("greedy_random_more.json", "w") as outfile:
     json.dump(records, outfile)
 print(winners)
