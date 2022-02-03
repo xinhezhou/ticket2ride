@@ -76,28 +76,28 @@ def initialize_game():
     return game, players
 
 
-# memory = ReplayMemory(10000)
-# f = open("../greedy_random_fixed.json")
-# records = json.load(f)
-# generate_gameplay(records, memory)
-# print("done processing")
-# for _ in range(1000):
-#     for i in range(10):
-#         optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE, GAMMA)
-#     target_net.load_state_dict(policy_net.state_dict())
+memory = ReplayMemory(100000)
+f = open("../greedy_random_more.json")
+records = json.load(f)
+generate_gameplay(records, memory)
+print("done processing")
+for _ in range(1000):
+    for i in range(10):
+        optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE, GAMMA)
+    target_net.load_state_dict(policy_net.state_dict())
 
-# torch.save({
-#             'state_dict': target_net.state_dict(),
-#         }, "greedy_random_simple.pth.tar")
+torch.save({
+            'state_dict': target_net.state_dict(),
+        }, "greedy_random_more.pth.tar")
 
 # plt.plot(range(len(losses)), losses)
 # plt.show()
 
 
 
-checkpoint = torch.load("greedy_random_simple.pth.tar")
-target_net.load_state_dict(checkpoint['state_dict'])
-winners, records = play_game(1000, initialize_game)
-print(winners)
-plt.hist(winners, density=False, bins=3,)
-plt.show()
+# checkpoint = torch.load("greedy_random_simple.pth.tar")
+# target_net.load_state_dict(checkpoint['state_dict'])
+# winners, records = play_game(1000, initialize_game)
+# print(winners)
+# plt.hist(winners, density=False, bins=3,)
+# plt.show()
