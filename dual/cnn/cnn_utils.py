@@ -1,12 +1,22 @@
 
 
 from exprience_replay import Transition
+from mcts_utils import simulate_rollout
 import torch.nn as nn
 import torch
+import numpy as np
 import sys
-sys.path.append("../..")
+import matplotlib.pyplot as plt
+import json
+
+from utils.game_utils import compute_availability_matrix, get_available_routes
+sys.path.append("../")
+from bot_gameplay import play_game
+sys.path.append("../")
 from game import Game
 from nonRLplayers.random_player import RandomPlayer
+# from cnn_player import CNNPlayer
+
 
 
 
@@ -83,6 +93,34 @@ def generate_train_matrix(num_trains, max_count, v):
                     matrix[i][j][k] = 1
     return matrix
 
+def generate_route_lookahead_matrix(game, players):
+    u,v,c = game.status.shape
+    matrix = torch.zeros((c,u,v))
+    availability = compute_availability_matrix(game.graph, game.status, players[0])
+    for i in range(u):
+        for j in range(v):
+            for k in range(c):
+                if availability[i][j][k]:
+                    outcome = simulate_rollout(game, players, (i, j, k)) + simulate_rollout(game, players, (i, j, k)) + simulate_rollout(game, players, (i, j, k))
+                    if outcome[0] == 3:
+                        matrix[k][i][j] = 1
+    return matrix
+
+def generate_card_lookahead_matrix(game, players):
+    outcome = simulate_rollout(game, players, 0) + simulate_rollout(game, players, 0) + simulate_rollout(game, players, 0)
+    u,v,c = game.status.shape
+    if outcome[0] == 3:
+        return torch.ones((1, u,v))
+    else:
+        return torch.zeros((1, u,v))
+
+
+
+                        
+
+    
+    
+
 def generate_state_matrix(game, players):
     """
     generate a binary matrix that represents the current state of game
@@ -92,7 +130,9 @@ def generate_state_matrix(game, players):
     v = len(game.graph)
     matrices.append(generate_multigraph_matrix(game.graph, 4)) # 28 * 7 * 7
     matrices.append(generate_multigraph_matrix(game.status, 2)) # 14  * 7 * 7
-    matrices.append(generate_deck_matrix(game.cards, game.card_index, v)) # 72 * 7 * 7
+    # matrices.append(generate_deck_matrix(game.cards, game.card_index, v)) # 72 * 7 * 7
+    matrices.append(generate_route_lookahead_matrix(game, players)) # 7 * 7 * 7
+    matrices.append(generate_card_lookahead_matrix(game, players)) # 1 * 7 * 7
     for player in players:
         matrices.append(generate_destination_cards_matrix(player.destination_cards, v)) # 2 * 7 * 7
         matrices.append(generate_train_cards_matrix(player.cards, 12, v)) # 24 * 7 * 7
@@ -100,7 +140,7 @@ def generate_state_matrix(game, players):
 
     return torch.cat(matrices)
 
-def generate_gameplay(records, memory):
+def generate_gameplay(records):
     """
     Generate gameplays from records and push them into memory
     for CNN training
@@ -128,6 +168,7 @@ def generate_gameplay(records, memory):
         (5, 6, 2): 3,
         (5, 6, 3): 3,
     }
+    memory = {}
     for key in records:
         record = records[key]
         deck_cards = record["deck"]
@@ -150,8 +191,14 @@ def generate_gameplay(records, memory):
                     reward = 1
             next_state = generate_state_matrix(game, players).unsqueeze(0)
             if player.id == 1:
-                memory.push(state, torch.tensor([[choice]]), next_state, torch.tensor([reward]))
+                entry = {}
+                entry["state"]  = state.tolist()
+                entry["choice"] = [[choice]]
+                entry["next_state"] = next_state.tolist()
+                entry["reward"] = [reward]
+                memory[key] = entry
             players = players[::-1]
+    return memory
             
 
 def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE, GAMMA):
@@ -174,7 +221,9 @@ def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
     # print(action_batch, reward_batch)
-    state_action_values =  state_action_values = policy_net(state_batch).gather(1, action_batch)
+    action_probs = policy_net(state_batch)
+    state_action_values = action_probs.gather(1, action_batch)
+    
 
     # Compute V(s_{t+1}) for all next states.
     # Expected values of actions for non_final_next_states are computed based
@@ -189,7 +238,18 @@ def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE
     # Compute Huber loss
     criterion = nn.SmoothL1Loss()
     # print(state_action_values, expected_state_action_values)
-    loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+    entropy = 0
+    # print(action_probs)
+    for i in range(action_probs.shape[0]):
+        probs_list = action_probs[i][action_probs[i] != 0]
+        entropy -= torch.sum(probs_list * torch.log(probs_list))
+        if torch.isnan(entropy):
+            print("what")
+            print(probs_list, torch.log(probs_list))
+            return 
+    loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1)) + 0.0001 * entropy
+    # print(entropy)
+    # entropy = np.sum(np.mean(action_probs) * np.log(action_probs))
 
     # Optimize the model
     optimizer.zero_grad()
@@ -198,3 +258,112 @@ def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
+
+def compute_route_freq(records, k):
+    route_freq = {}
+    win_freq = {}
+    for key in records:
+        record = records[key]
+        actions = record["actions"]
+        winner = tuple(record["winner"])
+        if winner in win_freq:
+            win_freq[winner] += 1
+        else:
+            win_freq[winner] = 1
+        # print(actions[0])
+        routes = []
+        for i in range(0, len(actions), 2):
+            action = actions[i]
+            if len(action) == 3:
+                routes.append(tuple(action[:2]))
+        routes.sort()
+        if tuple(routes) in route_freq:
+            route_freq[tuple(routes)] += 1
+        else:
+            route_freq[tuple(routes)] = 1
+
+    for key in route_freq:
+        if route_freq[key] > k:
+            print(key, route_freq[key])
+    print(sorted(route_freq.values()))
+    print(win_freq)
+    return win_freq, route_freq
+
+
+def convert_records(json_file, memory_file):
+    f = open(json_file)
+    records = json.load(f)
+    records = generate_gameplay(records)
+    with open(memory_file, "w") as outfile:
+        json.dump(records, outfile)
+
+
+def push_memory(memory_file, memory):
+    f = open(memory_file)
+    records = json.load(f)
+    for key in records:
+        record = records[key]
+        state = torch.tensor(record["state"])
+        choice = torch.tensor(record["choice"])
+        next_state = torch.tensor(record["next_state"])
+        reward = torch.tensor(record["reward"])
+        memory.push(state, choice, next_state, reward)
+
+def evaluate_net(target_net, net_file, record_file):
+    def initialize_game():
+        num_vertices = 7
+        num_route_colors = 7
+        num_card_colors = 7
+        deck_cards = [1,2,3,4,5,6,0] * 10  + [0] * 2 # train cards in the deck
+        edges = {
+        (0, 1, 2): 1,
+        (0, 3, 2): 3,
+        (0, 3, 5): 3,
+        (0, 4, 6): 2,
+        (1, 2, 6): 2,
+        (1, 4, 1): 2,
+        (1, 4, 2): 2,
+        (2, 4, 1): 1,
+        (2, 4, 3): 1,
+        (2, 6, 6): 2,
+        (3, 4, 4): 2,
+        (3, 5, 4): 1,
+        (3, 5, 6): 1,
+        (4, 5, 3): 2,
+        (4, 5, 6): 2,
+        (4, 6, 6): 3,
+        (5, 6, 2): 3,
+        (5, 6, 3): 3,
+        }
+
+        destinations = [
+            (1, 5),
+            (1, 3),
+            (3, 6),
+            (1, 6),
+            (0, 6)
+        ]
+
+        np.random.shuffle(deck_cards) 
+        game = Game(num_vertices, num_route_colors, edges, deck_cards)
+        # sample = np.random.choice(5, 4, False)
+        destination_cards_a = [(1, 3), (1, 6)]
+        destination_cards_b = [(0, 6), (3, 6)]
+        player_a = CNNPlayer(num_card_colors, destination_cards_a, 10, 1, target_net)
+        # player_b = GreedyPlayer(num_card_colors, destination_cards_b, 10, 2,)
+        player_b = RandomPlayer(num_card_colors, destination_cards_b, 10, 2,)
+        game.draw_cards(player_a)
+        game.draw_cards(player_a)
+        game.draw_cards(player_b)
+        game.draw_cards(player_b)
+        players = [player_a, player_b]
+
+        return game, players
+    checkpoint = torch.load(net_file)
+    target_net.load_state_dict(checkpoint['state_dict'])
+    winners, records = play_game(10000, initialize_game)
+    print(winners)
+    with open(record_file, "w") as outfile:
+        json.dump(records, outfile)
+    plt.hist(winners, density=False, bins=3,)
+    plt.show()

@@ -43,3 +43,8 @@ class GreedyPlayer:
             return 0
         else:
             return 1
+    
+    def duplicate(self):
+        copy = GreedyPlayer(len(self.cards), self.destination_cards[:], self.trains, self.id)
+        copy.cards = self.cards[:]
+        return copy

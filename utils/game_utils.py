@@ -148,20 +148,20 @@ def check_win(game, players):
     # print(status)
     for player in players:
         if len(player.destination_cards) == 0:
-            return player.id
+            return player.id, 1
         if game.card_index >= len(game.cards) or player.trains == 0:
             if len(players[0].destination_cards) == len(players[1].destination_cards):
                 # print(player.routes, player.destination_cards)
-                return 0
+                return 0, 0
             elif len(players[0].destination_cards) > len(players[1].destination_cards):
-                return players[1].id
+                return players[1].id, 0
             else:
-                return players[0].id
+                return players[0].id, 0
     
     for u in range(len(game.status)):
         for v in range(len(game.status)):
             if 0 in game.status[u][v]:
-                return -1
+                return -1, -1
 
     # print(status)
     return 0
