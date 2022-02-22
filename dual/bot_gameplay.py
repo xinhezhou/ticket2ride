@@ -18,8 +18,8 @@ def play_game(iterations, initialize_game):
         record["destinations_a"] = players[0].destination_cards
         record["destinations_b"] = players[1].destination_cards
         actions = []
-        winner = -1
-        while winner == -1:
+        winner = -1, -1
+        while winner[0] == -1:
             player = players[0]
             availability = compute_availability_matrix(game.graph, game.status, player)
             if len(get_available_routes(availability)) == 0 or player.draw_or_claim(game, players) == 0:
@@ -29,16 +29,17 @@ def play_game(iterations, initialize_game):
                 route = player.choose_route(game, players) 
                 game.claim_route(route, player)
                 actions.append(route)
+                # if player.id == 1:
+                #     print(route)
 
-            players = players[::-1]
             winner = check_win(game, players)
+            players = players[::-1]
 
         record["actions"] = actions
         record["winner"] = winner
-        winners.append(winner)
+        winners.append(winner[0])
         # if winner == 0:
-        #     print(players[0].routes)
-        #     print(players[1].routes)
+        # print(players[0].routes, players[1].routes, winner)
         records[i] = record
 
 

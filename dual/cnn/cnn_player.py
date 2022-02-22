@@ -33,6 +33,9 @@ class CNNPlayer:
         u = action // 49
         v = (action - 49 * u) // 7
         c = action - 49 * u - 7 * v  
+        if u == 0 and v == 0:
+            print(availability[9], dqn_output)
+            # print(get_available_routes(compute_availability_matrix(game.graph, game.status, self)))
         return u, v, c
         
 
@@ -41,10 +44,20 @@ class CNNPlayer:
         Choose the action associated withe the highest value
         based on the card policy
         """
+        availability = compute_availability_matrix(game.graph, game.status, self)
+        availability = np.reshape(availability, (7*7*7, 1))
         dqn_input = generate_state_matrix(game, players).unsqueeze(0)
         dqn_output = self.net(dqn_input)
-        if dqn_output[0][0] == max(dqn_output[0]):
+        action_dist = torch.mul(torch.transpose(dqn_output, 0, 1)[1:], torch.from_numpy(availability))
+        # print(dqn_output)
+        if dqn_output[0][0] >= max(action_dist):
             return 0
         else:
             return 1
+
+    def duplicate(self):
+        copy = CNNPlayer(len(self.cards), self.destination_cards[:], self.trains, self.id, self.net)
+        copy.cards = self.cards[:]
+        return copy
+
    

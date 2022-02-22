@@ -5,6 +5,9 @@ from utils.game_utils import check_path
 
 class Game:
     def __init__(self, num_vertices, num_colors, edges, deck_cards):
+        self.num_vertices = num_vertices
+        self.num_colors = num_colors
+        self.edges = edges
         self.graph = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> w
         self.status = np.zeros((num_vertices, num_vertices, num_colors)) # (u, v, c) -> -1/0/1 (not available/free/occupied player id)
         for u in range(num_vertices):
@@ -59,6 +62,14 @@ class Game:
         player.cards[self.cards[self.card_index+1]] += 1
         self.card_index += 2
         return cards
+
+    def duplicate(self):
+        copy = Game(self.num_vertices, self.num_colors, self.edges, self.cards)
+        copy.graph = np.copy(self.graph)
+        copy.status = np.copy(self.status)
+        copy.card_index = self.card_index
+        return copy
+
 
 
 

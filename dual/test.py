@@ -5,6 +5,8 @@ from nonRLplayers.random_player import RandomPlayer
 
 import numpy as np
 import json
+import matplotlib.pyplot as plt
+
 
 def initialize_game():
     num_vertices = 7
@@ -40,7 +42,7 @@ def initialize_game():
         (0, 6)
     ]
 
-    # np.random.shuffle(deck_cards) 
+    np.random.shuffle(deck_cards) 
     game = Game(num_vertices, num_route_colors, edges, deck_cards)
     # sample = np.random.choice(5, 4, False)
     destination_cards_a = [(1, 3), (1, 6)]
@@ -57,6 +59,9 @@ def initialize_game():
     return game, players
 
 winners, records = play_game(10000, initialize_game)
-with open("greedy_random_more.json", "w") as outfile:
-    json.dump(records, outfile)
-print(winners)
+
+# with open("greedy_random_shuffled.json", "w") as outfile:
+#     json.dump(records, outfile)
+# print(winners)
+# plt.hist(winners, density=False, bins=3,)
+# plt.show()

@@ -27,3 +27,8 @@ class RandomPlayer:
             return 0
         else:
             return 1
+
+    def duplicate(self):
+        copy = RandomPlayer(len(self.cards), self.destination_cards[:], self.trains, self.id)
+        copy.cards = self.cards[:]
+        return copy
