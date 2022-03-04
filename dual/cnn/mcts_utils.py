@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../..")
+sys.path.append("../../../")
 import numpy as np
 from game import Game
 from nonRLplayers.random_player import RandomPlayer

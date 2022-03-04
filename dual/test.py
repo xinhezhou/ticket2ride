@@ -2,6 +2,7 @@ from bot_gameplay import play_game
 from game import Game
 from nonRLplayers.greedy_player import GreedyPlayer
 from nonRLplayers.random_player import RandomPlayer
+from nonRLplayers.frugal_player import FrugalPlayer
 
 import numpy as np
 import json
@@ -44,10 +45,21 @@ def initialize_game():
 
     np.random.shuffle(deck_cards) 
     game = Game(num_vertices, num_route_colors, edges, deck_cards)
-    # sample = np.random.choice(5, 4, False)
-    destination_cards_a = [(1, 3), (1, 6)]
-    destination_cards_b = [(0, 6), (3, 6)]
-    player_a = GreedyPlayer(num_card_colors, destination_cards_a, 10, 1)
+    sample = np.random.uniform()
+    if sample < 0.5:
+        destination_cards_a = [[1,3], [1,6]]
+        destination_cards_b = [[0,6], [3,6]]
+    else:
+        destination_cards_a = [[0,6], [3,6]]
+        destination_cards_b = [[1,3], [1,6]]
+
+    sample = np.random.uniform()
+    if sample < 0.1:
+        player_a = RandomPlayer(num_card_colors, destination_cards_a, 10, 1)
+    elif sample < 0.2:
+        player_a = FrugalPlayer(num_card_colors, destination_cards_a, 10, 1)
+    else:
+        player_a = GreedyPlayer(num_card_colors, destination_cards_a, 10, 1)
     player_b = RandomPlayer(num_card_colors, destination_cards_b, 10, 2)
     game.draw_cards(player_a)
     game.draw_cards(player_a)
@@ -58,10 +70,10 @@ def initialize_game():
 
     return game, players
 
-winners, records = play_game(10000, initialize_game)
+winners, records = play_game(20000, initialize_game)
 
-# with open("greedy_random_shuffled.json", "w") as outfile:
-#     json.dump(records, outfile)
-# print(winners)
-# plt.hist(winners, density=False, bins=3,)
-# plt.show()
+with open("cnn/dataset/large.json", "w") as outfile:
+    json.dump(records, outfile)
+print(winners)
+plt.hist(winners, density=False, bins=3,)
+plt.show()

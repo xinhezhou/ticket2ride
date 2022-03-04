@@ -3,7 +3,7 @@ import random
 from utils.game_utils import get_available_routes, compute_availability_matrix
 
 class RandomPlayer:
-    def __init__(self, num_colors, destination_cards, trains, id):
+    def __init__(self, num_colors, destination_cards, trains, id, net=None):
         self.cards = num_colors * [0]
         self.routes = {}
         self.trains = trains

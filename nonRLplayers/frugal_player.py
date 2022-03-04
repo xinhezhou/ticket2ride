@@ -39,3 +39,9 @@ class FrugalPlayer:
             if  check_path(availability, a, b):
                 return 1
         return 0
+    
+    def duplicate(self):
+        copy = FrugalPlayer(len(self.cards), self.destination_cards[:], self.trains, self.id)
+        copy.cards = self.cards[:]
+        return copy
+

@@ -1,11 +1,7 @@
 import numpy as np
 import torch
+from cnn_utils import generate_state_matrix
 from utils.game_utils import compute_availability_matrix, get_available_routes
-import random
-
-import torch.nn as nn
-import torch.nn.functional as F
-from cnn.cnn_utils import generate_state_matrix
 
 
 class CNNPlayer:
