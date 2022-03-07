@@ -61,7 +61,7 @@ def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE
     # Optimize the model
     optimizer.zero_grad()
     loss.backward()
-    losses.append(loss)
+    losses.append(loss.item())
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
