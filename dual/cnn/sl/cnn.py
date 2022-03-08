@@ -84,6 +84,7 @@ def train_cnn(policy_net, target_net, memory, checkpoint_file, loss_file, BATCH_
     torch.save({
                 'state_dict': target_net.state_dict(),
             }, checkpoint_file)
+    plt.clf()
     plt.plot(range(len(losses)), losses)
     plt.savefig(loss_file)
 
@@ -99,5 +100,5 @@ for memory_file, checkpoint_m, checkpoint_f, loss_m, loss_f in datasets:
     target_net = load_net(None, network, True)
     memory = ReplayMemory(1000000)
     push_memory(memory_file, memory)
-    train_cnn(policy_net, target_net, memory, checkpoint_m, loss_f)
-    train_cnn(policy_net, target_net, memory, checkpoint_m, loss_f)
+    train_cnn(policy_net, target_net, memory, checkpoint_m, loss_m)
+    train_cnn(policy_net, target_net, memory, checkpoint_f, loss_f)
