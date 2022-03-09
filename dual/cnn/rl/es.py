@@ -58,10 +58,8 @@ def optimize_model(target_net, fitnesses, player_classes, opponent_net, destinat
 
 
 def train_es(target_net, memory, checkpoint_file, BATCH_SIZE=128, GAMMA=0.9, TARGET_UPDATE=10, round=1000):
-
     target_net.eval()
     fitnesses = []
-
     for _ in range(round):
         optimize_model(target_net, memory, fitnesses, BATCH_SIZE, GAMMA)
     torch.save({

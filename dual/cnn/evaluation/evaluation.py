@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from cnn_player import CNNPlayer
 from cnn_utils import load_net
 from cnn_network import CNNSimple, CNNComplex
-sys.path.append("../")
+sys.path.append("../../")
 from bot_gameplay import play_game
 sys.path.append("../")
 from game import Game
@@ -67,17 +67,18 @@ def evaluate_net(target_nets, player_classes, destination_cards, record_file, co
     if display:
         plt.hist(winners, density=False, bins=3,)
         plt.show()
-    return records
+    return winners, records
 
-target_nets = [
-    load_net("complex.pth.tar",CNNComplex, eval=True),
-    load_net(None, eval=True),
-]
-player_classes = [CNNPlayer, RandomPlayer]
-destination_cards = [
-    [[1, 3], [1, 6]],
-    [[0, 6], [3, 6]],
-]
-record_file = "complex_record.json"
+if __name__ == '__main__':
+    target_nets = [
+        load_net("complex.pth.tar",CNNComplex, eval=True),
+        load_net(None, eval=True),
+    ]
+    player_classes = [CNNPlayer, RandomPlayer]
+    destination_cards = [
+        [[1, 3], [1, 6]],
+        [[0, 6], [3, 6]],
+    ]
+    record_file = "complex_record.json"
 
-evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=100, display=True)
+    evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=100, display=True)
