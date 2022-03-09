@@ -12,7 +12,7 @@ from exprience_replay import ReplayMemory
 
 def train_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, loss_file, memory, player_classes, destination_cards, opponent_net=None, first=True, round=10):
     policy_net = load_net(initial_checkpoint)
-    target_net = load_net(initial_checkpoint, True)
+    target_net = load_net(initial_checkpoint, eval=True)
     for _ in range(round):
         train_cnn(policy_net, target_net, memory, selfplay_checkpoint, loss_file)
 
