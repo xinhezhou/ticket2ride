@@ -73,11 +73,11 @@ def convert_records(json_file, memory_file):
     with open(memory_file, "w") as outfile:
         json.dump(records, outfile)
 
-filenames = [
-    ["small.json", "small_memory.json"],
-    ["medium.json", "medium_memory.json"],
-    ["large.json", "large_memory.json"]
-]
-for record_file, memory_file in filenames:
-    convert_records(record_file, memory_file)
+# filenames = [
+#     ["small.json", "small_memory.json"],
+#     ["medium.json", "medium_memory.json"],
+#     ["large.json", "large_memory.json"]
+# ]
+# for record_file, memory_file in filenames:
+#     convert_records(record_file, memory_file)
 
