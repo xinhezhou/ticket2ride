@@ -33,6 +33,7 @@ initial_checkpoint = "../sl/medium_m.pth.tar"
 selfplay_checkpoint ="with_prior_random.pth.tar"
 record_file = "../dataset/with_prior_random.json"
 memory_file = "../dataset/with_prior_random.json"
+loss_file = "with_prior_random.pdf"
 player_classes = [
     CNNPlayer, RandomPlayer
 ]
@@ -40,8 +41,9 @@ destination_cards = [
     [[1, 3], [1, 6]],
     [[0, 6], [3, 6]],
 ]
-train_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, memory_file, player_classes, destination_cards)
+train_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, loss_file, memory, player_classes, destination_cards)
 for i in range(100):
-    train_selfplay(selfplay_checkpoint, selfplay_checkpoint, record_file, memory_file, player_classes, destination_cards)
+    train_selfplay(selfplay_checkpoint, selfplay_checkpoint, record_file, memory, player_classes, destination_cards)
     convert_records(record_file, memory_file)
+    push_memory(memory_file, memory)
 
