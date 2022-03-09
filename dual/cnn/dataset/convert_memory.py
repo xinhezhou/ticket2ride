@@ -72,12 +72,13 @@ def convert_records(json_file, memory_file):
     records = generate_gameplay(records)
     with open(memory_file, "w") as outfile:
         json.dump(records, outfile)
-
-# filenames = [
-#     ["small.json", "small_memory.json"],
-#     ["medium.json", "medium_memory.json"],
-#     ["large.json", "large_memory.json"]
-# ]
-# for record_file, memory_file in filenames:
-#     convert_records(record_file, memory_file)
+        
+if __name__ == '__main__':
+    filenames = [
+        ["small.json", "small_memory.json"],
+        ["medium.json", "medium_memory.json"],
+        ["large.json", "large_memory.json"]
+    ]
+    for record_file, memory_file in filenames:
+        convert_records(record_file, memory_file)
 

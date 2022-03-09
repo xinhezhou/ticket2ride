@@ -88,17 +88,17 @@ def train_cnn(policy_net, target_net, memory, checkpoint_file, loss_file, BATCH_
     plt.plot(range(len(losses)), losses)
     plt.savefig(loss_file)
 
-
-datasets = [
-    ["../dataset/small_memory.json", "small_m.pth.tar", "small_f.pth.tar", "small_loss_m.pdf", "small_loss_f.pdf"],
-    ["../dataset/medium_memory.json", "medium_m.pth.tar", "medium_f.pth.tar", "medium_loss_m.pdf", "medium_loss_f.pdf"],
-    ["../dataset/large_memory.json", "large_m.pth.tar", "large_f.pth.tar", "large_loss_m.pdf", "large_loss_f.pdf"],
-]
-for memory_file, checkpoint_m, checkpoint_f, loss_m, loss_f in datasets:
-    network = CNNSimple
-    policy_net = load_net(None, network, False)
-    target_net = load_net(None, network, True)
-    memory = ReplayMemory(1000000)
-    push_memory(memory_file, memory)
-    train_cnn(policy_net, target_net, memory, checkpoint_m, loss_m)
-    train_cnn(policy_net, target_net, memory, checkpoint_f, loss_f)
+if __name__ == '__main__':
+    datasets = [
+        ["../dataset/small_memory.json", "small_m.pth.tar", "small_f.pth.tar", "small_loss_m.pdf", "small_loss_f.pdf"],
+        ["../dataset/medium_memory.json", "medium_m.pth.tar", "medium_f.pth.tar", "medium_loss_m.pdf", "medium_loss_f.pdf"],
+        ["../dataset/large_memory.json", "large_m.pth.tar", "large_f.pth.tar", "large_loss_m.pdf", "large_loss_f.pdf"],
+    ]
+    for memory_file, checkpoint_m, checkpoint_f, loss_m, loss_f in datasets:
+        network = CNNSimple
+        policy_net = load_net(None, network, False)
+        target_net = load_net(None, network, True)
+        memory = ReplayMemory(1000000)
+        push_memory(memory_file, memory)
+        train_cnn(policy_net, target_net, memory, checkpoint_m, loss_m)
+        train_cnn(policy_net, target_net, memory, checkpoint_f, loss_f)
