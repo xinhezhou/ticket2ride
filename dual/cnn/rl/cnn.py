@@ -27,22 +27,22 @@ if __name__ == '__main__':
     """
     TEST 1: with prior memory and checkpoint 
     """
-    memory = ReplayMemory(100000)
-    initial_memory = "../dataset/medium_memory.json"
-    push_memory(initial_memory, memory)
-    initial_checkpoint = "../sl/medium_m.pth.tar"
-    selfplay_checkpoint ="with_prior_cnn.pth.tar"
-    record_file = "../dataset/with_prior_cnn.json"
-    memory_file = "../dataset/with_prior_cnn_memory.json"
-    loss_file = "with_prior_selfplay_cnn.pdf"
-    player_classes = [
-        CNNPlayer, RandomPlayer
-    ]
-    destination_cards = [
-        [[1, 3], [1, 6]],
-        [[0, 6], [3, 6]],
-    ]
-    train_cnn_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, memory_file, loss_file, memory, player_classes, destination_cards)
+    # memory = ReplayMemory(100000)
+    # initial_memory = "../dataset/medium_memory.json"
+    # push_memory(initial_memory, memory)
+    # initial_checkpoint = "../sl/medium_m.pth.tar"
+    # selfplay_checkpoint ="with_prior_cnn.pth.tar"
+    # record_file = "../dataset/with_prior_cnn.json"
+    # memory_file = "../dataset/with_prior_cnn_memory.json"
+    # loss_file = "with_prior_selfplay_cnn.pdf"
+    # player_classes = [
+    #     CNNPlayer, RandomPlayer
+    # ]
+    # destination_cards = [
+    #     [[1, 3], [1, 6]],
+    #     [[0, 6], [3, 6]],
+    # ]
+    # train_cnn_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, memory_file, loss_file, memory, player_classes, destination_cards)
 
 
     """
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     selfplay_checkpoint ="without_prior_cnn.pth.tar"
     record_file = "../dataset/without_prior_cnn.json"
     memory_file = "../dataset/without_prior_cnn.json"
-    loss_file = "with_prior_cnn.pdf"
+    loss_file = "without_prior_cnn.pdf"
     player_classes = [
         CNNPlayer, RandomPlayer
     ]

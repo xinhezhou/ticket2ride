@@ -84,19 +84,19 @@ if __name__ == '__main__':
     """
     TEST 1: with prior memory and checkpoint 
     """
-    initial_checkpoint = "../sl/medium_m.pth.tar"
-    selfplay_checkpoint ="with_prior_es.pth.tar"
-    record_file = "../dataset/with_prior_es.json"
-    memory_file = "../dataset/with_prior_es_memory.json"
-    fitness_file = "with_prior_es.pdf"
-    player_classes = [
-        CNNPlayer, RandomPlayer
-    ]
-    destination_cards = [
-        [[1, 3], [1, 6]],
-        [[0, 6], [3, 6]],
-    ]
-    train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, player_classes, destination_cards)
+    # initial_checkpoint = "../sl/medium_m.pth.tar"
+    # selfplay_checkpoint ="with_prior_es.pth.tar"
+    # record_file = "../dataset/with_prior_es.json"
+    # memory_file = "../dataset/with_prior_es_memory.json"
+    # fitness_file = "with_prior_es.pdf"
+    # player_classes = [
+    #     CNNPlayer, RandomPlayer
+    # ]
+    # destination_cards = [
+    #     [[1, 3], [1, 6]],
+    #     [[0, 6], [3, 6]],
+    # ]
+    # train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, player_classes, destination_cards)
 
     """
     TEST 2: without prior memory and checkpoint 
