@@ -59,6 +59,7 @@ def optimize_model(target_net, fitnesses, player_classes, destination_cards, opp
             w_try = update(w, sigma, jitters)
             R[j] = compute_fitness(w_try,  target_net, player_classes, opponent_net, destination_cards, first)
         if np.sum(R) != 0 and np.std(R)!= 0:
+            print("here")
             fitnesses.append(np.sum(R))
             A = (R - np.mean(R)) / np.std(R)
             for param in w:
