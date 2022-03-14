@@ -19,7 +19,9 @@ def play_game(iterations, initialize_game):
         record["destinations_b"] = players[1].destination_cards
         actions = []
         winner = -1, -1
+        count = 0
         while winner[0] == -1:
+            count += 1
             player = players[0]
             availability = compute_availability_matrix(game.graph, game.status, player)
             if len(get_available_routes(availability)) == 0 or player.draw_or_claim(game, players) == 0:
@@ -31,8 +33,9 @@ def play_game(iterations, initialize_game):
                 actions.append(route)
                 # if player.id == 1:
                 #     print(route)
-
             winner = check_win(game, players)
+            if count > 100:    
+                print(winner)
             players = players[::-1]
 
         record["actions"] = actions
