@@ -68,7 +68,7 @@ def optimize_model(target_net, fitnesses, player_classes, destination_cards, opp
 
 
 
-def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, player_classes, destination_cards, round=1000):
+def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, player_classes, destination_cards, round=10):
     target_net = load_net(initial_checkpoint)
     fitnesses = []
     for _ in range(round):
