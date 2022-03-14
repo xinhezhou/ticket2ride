@@ -3,6 +3,7 @@ import numpy as np
 import json 
 import sys
 import matplotlib.pyplot as plt
+sys.path.append("../")
 from cnn_player import CNNPlayer
 from cnn_utils import load_net
 from cnn_network import CNNSimple, CNNComplex
@@ -71,7 +72,7 @@ def evaluate_net(target_nets, player_classes, destination_cards, record_file, co
 
 if __name__ == '__main__':
     target_nets = [
-        load_net("complex.pth.tar",CNNComplex, eval=True),
+        load_net("../sl/medium_m.pth.tar",CNNSimple, eval=True),
         load_net(None, eval=True),
     ]
     player_classes = [CNNPlayer, RandomPlayer]
@@ -79,6 +80,6 @@ if __name__ == '__main__':
         [[1, 3], [1, 6]],
         [[0, 6], [3, 6]],
     ]
-    record_file = "complex_record.json"
+    record_file = "medium_random_record.json"
 
-    evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=100, display=True)
+    evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=1000, display=True)
