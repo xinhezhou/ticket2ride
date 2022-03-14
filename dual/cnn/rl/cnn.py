@@ -61,4 +61,4 @@ if __name__ == '__main__':
         [[1, 3], [1, 6]],
         [[0, 6], [3, 6]],
     ]
-    train_cnn_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, memory_file, loss_file, memory, player_classes, destination_cards)
+    train_cnn_selfplay(initial_checkpoint, selfplay_checkpoint, record_file, memory_file, loss_file, memory, player_classes, destination_cards, 100)
