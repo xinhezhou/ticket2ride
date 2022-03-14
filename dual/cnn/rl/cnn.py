@@ -6,6 +6,7 @@ from cnn_utils import load_net
 from dataset.convert_memory import convert_records
 from cnn_player import CNNPlayer
 from nonRLplayers.random_player import RandomPlayer
+from nonRLplayers.greedy_player import GreedyPlayer
 from sl.cnn import train_cnn, push_memory
 from evaluation.evaluation import evaluate_net
 from exprience_replay import ReplayMemory
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     memory_file = "../dataset/without_prior_cnn.json"
     loss_file = "without_prior_cnn.pdf"
     player_classes = [
-        CNNPlayer, RandomPlayer
+        CNNPlayer, GreedyPlayer
     ]
     destination_cards = [
         [[1, 3], [1, 6]],
