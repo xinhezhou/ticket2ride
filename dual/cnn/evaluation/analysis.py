@@ -1,9 +1,7 @@
 
 import json 
 import sys
-sys.path.append("../")
 import matplotlib.pyplot as plt
-from bot_gameplay import play_game
 
 
 
@@ -37,15 +35,7 @@ def compute_route_freq(records, k):
     print(win_freq)
     return win_freq, route_freq
 
-def plot_winners(initialize_game, round=1000):
-    winners, records = play_game(1000, initialize_game)
-    print(winners)
-    with open("cnn_random_lookahead.json", "w") as outfile:
-        json.dump(records, outfile)
-    plt.hist(winners, density=False, bins=3,)
-    plt.show()
-
-f = open("cnn_two_shuffled.json")
+f = open("medium_random_record.json")
 records = json.load(f)
-win_freqs, route_freqs = compute_route_freq(records, 1)
+win_freqs, route_freqs = compute_route_freq(records, 30)
 

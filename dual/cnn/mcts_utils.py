@@ -16,7 +16,9 @@ def simulate_rollout(game, players, action):
     else:
         new_game.claim_route(action, player)
     winner = check_win(game, players)
+    count = 0
     while winner == -1:
+        count += 1
         player = players[0]
         availability = compute_availability_matrix(game.graph, game.status, player)
         if len(get_available_routes(availability)) == 0 or player.draw_or_claim(game, players) == 0:
@@ -27,6 +29,8 @@ def simulate_rollout(game, players, action):
 
         players = players[::-1]
         winner = check_win(game, players)
+        if count > 100:
+            print(winner, player.cards)
     return winner
 
 num_vertices = 7

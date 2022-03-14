@@ -72,7 +72,7 @@ def evaluate_net(target_nets, player_classes, destination_cards, record_file, co
 
 if __name__ == '__main__':
     target_nets = [
-        load_net("../sl/medium_m.pth.tar",CNNSimple, eval=True),
+        load_net("../sl/medium_f.pth.tar",CNNSimple, eval=True),
         load_net(None, eval=True),
     ]
     player_classes = [CNNPlayer, RandomPlayer]
@@ -80,6 +80,6 @@ if __name__ == '__main__':
         [[1, 3], [1, 6]],
         [[0, 6], [3, 6]],
     ]
-    record_file = "medium_random_record.json"
+    record_file = "medium_final_random.json"
 
     evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=1000, display=True)
