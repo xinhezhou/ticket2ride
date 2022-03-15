@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 
 
 
-def compute_route_freq(records, k):
+def compute_route_freq(records, k, win_file=None):
     route_freq = {}
     win_freq = {}
     for key in records:
         record = records[key]
         actions = record["actions"]
-        winner = tuple(record["winner"])
+        winner = str(record["winner"])
         if winner in win_freq:
             win_freq[winner] += 1
         else:
@@ -33,18 +33,26 @@ def compute_route_freq(records, k):
             print(key, route_freq[key])
     print(sorted(route_freq.values()))
     print(win_freq)
+    if win_file:
+        plt.clf()
+        # plt.hist(win_freq)
+        plt.bar(sorted(win_freq.keys()), win_freq.values(), width=.5, color='b')
+        plt.savefig(win_file)
     return win_freq, route_freq
 
+
 filenames = [
-    "small_middle_random.json",
-    "small_final_random.json",
-    "medium_middle_random.json",
-    "medium_final_random.json",
-    "large_middle_random.json",
-    "large_final_random.json",
+    ["small_middle_greedy.json","small_middle_random.pdf"],
+    ["small_final_greedy.json", "small_final_random.pdf"],
+    ["medium_middle_random.json","medium_middle_random.pdf"],
+    ["medium_final_random.json","medium_final_random.pdf"],
+    ["large_middle_random.json","large_middle_random.pdf"],
+    ["large_final_random.json","large_final_random.pdf"],
 ]
-for filename in filenames:
+for filename, win_file in filenames:
+    print(filename)
     f = open(filename)
     records = json.load(f)
-    win_freqs, route_freqs = compute_route_freq(records, 30)
+    win_freqs, route_freqs = compute_route_freq(records, 30, win_file)
+
 
