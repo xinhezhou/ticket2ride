@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     filenames = [
     ["../rl/with_prior_es.pth.tar", "with_prior_es_random.json"],
-    ["../rl/without_prior_es.pth.tar", "with_prior_es_random.json"],
+    ["../rl/without_prior_es.pth.tar", "without_prior_es_random.json"],
     ]
     for net_file, record_file in filenames:
         target_nets = [

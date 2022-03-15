@@ -44,12 +44,8 @@ def compute_route_freq(records, k, win_file=None):
 
 
 filenames = [
-    ["small_middle_greedy.json","small_middle_greedy.pdf"],
-    ["small_final_greedy.json", "small_final_greedy.pdf"],
-    ["medium_middle_greedy.json","medium_middle_greedy.pdf"],
-    ["medium_final_greedy.json","medium_final_greedy.pdf"],
-    ["large_middle_greedy.json","large_middle_greedy.pdf"],
-    ["large_final_greedy.json","large_final_greedy.pdf"],
+    ["../rl/with_prior_es.pth.tar", "with_prior_es_random.json"],
+    ["../rl/without_prior_es.pth.tar", "with_prior_es_random.json"],
 ]
 for filename, win_file in filenames:
     print(filename)
