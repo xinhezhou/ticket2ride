@@ -71,15 +71,24 @@ def evaluate_net(target_nets, player_classes, destination_cards, record_file, co
     return winners, records
 
 if __name__ == '__main__':
-    target_nets = [
-        load_net("../sl/medium_f.pth.tar",CNNSimple, eval=True),
-        load_net(None, eval=True),
-    ]
-    player_classes = [CNNPlayer, RandomPlayer]
-    destination_cards = [
-        [[1, 3], [1, 6]],
-        [[0, 6], [3, 6]],
-    ]
-    record_file = "medium_final_random.json"
 
-    evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=1000, display=True)
+    filenames = [
+    ["../sl/small_m.pth.tar", "small_middle_random.json"],
+    ["../sl/small_f.pth.tar", "small_final_random.json"],
+    ["../sl/medium_m.pth.tar", "medium_middle_random.json"],
+    ["../sl/medium_f.pth.tar", "medium_final_random.json"],
+    ["../sl/large_m.pth.tar", "large_middle_random.json"],
+    ["../sl/large_f.pth.tar", "large_final_random.json"],
+    ]
+    for net_file, record_file in filenames:
+        target_nets = [
+            load_net(net_file,CNNSimple, eval=True),
+            load_net(None, eval=True),
+        ]
+        player_classes = [CNNPlayer, RandomPlayer]
+        destination_cards = [
+            [[1, 3], [1, 6]],
+            [[0, 6], [3, 6]],
+        ]
+        evaluate_net(target_nets, player_classes, destination_cards, record_file, counter=1000, display=False)
+    

@@ -35,7 +35,7 @@ def compute_route_freq(records, k):
     print(win_freq)
     return win_freq, route_freq
 
-f = open("medium_random_record.json")
+f = open("medium_middle_random.json")
 records = json.load(f)
 win_freqs, route_freqs = compute_route_freq(records, 30)
 
