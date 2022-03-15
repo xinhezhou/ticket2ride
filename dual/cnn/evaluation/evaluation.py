@@ -73,8 +73,8 @@ def evaluate_net(target_nets, player_classes, destination_cards, record_file, co
 if __name__ == '__main__':
 
     filenames = [
-    ["../rl/es/with_prior_es.pth.tar", "with_prior_es_random.json"],
-    ["../rl/es/without_prior_es.pth.tar", "without_prior_es_random.json"],
+    ["../rl/with_prior_es.pth.tar", "with_prior_es_random.json"],
+    ["../rl/without_prior_es.pth.tar", "with_prior_es_random.json"],
     ]
     for net_file, record_file in filenames:
         target_nets = [
