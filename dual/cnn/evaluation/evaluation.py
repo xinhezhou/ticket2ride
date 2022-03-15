@@ -74,11 +74,11 @@ if __name__ == '__main__':
 
     filenames = [
     ["../sl/small_m.pth.tar", "small_middle_greedy.json"],
-    ["../sl/small_f.pth.tar", "small_final_greedy.json"],
-    ["../sl/medium_m.pth.tar", "medium_middle_greedy.json"],
-    ["../sl/medium_f.pth.tar", "medium_final_greedy.json"],
-    ["../sl/large_m.pth.tar", "large_middle_greedy.json"],
-    ["../sl/large_f.pth.tar", "large_final_greedy.json"],
+    # ["../sl/small_f.pth.tar", "small_final_greedy.json"],
+    # ["../sl/medium_m.pth.tar", "medium_middle_greedy.json"],
+    # ["../sl/medium_f.pth.tar", "medium_final_greedy.json"],
+    # ["../sl/large_m.pth.tar", "large_middle_greedy.json"],
+    # ["../sl/large_f.pth.tar", "large_final_greedy.json"],
     ]
     for net_file, record_file in filenames:
         target_nets = [
