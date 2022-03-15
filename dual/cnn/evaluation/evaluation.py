@@ -73,19 +73,15 @@ def evaluate_net(target_nets, player_classes, destination_cards, record_file, co
 if __name__ == '__main__':
 
     filenames = [
-    ["../sl/small_m.pth.tar", "small_middle_greedy.json"],
-    # ["../sl/small_f.pth.tar", "small_final_greedy.json"],
-    # ["../sl/medium_m.pth.tar", "medium_middle_greedy.json"],
-    # ["../sl/medium_f.pth.tar", "medium_final_greedy.json"],
-    # ["../sl/large_m.pth.tar", "large_middle_greedy.json"],
-    # ["../sl/large_f.pth.tar", "large_final_greedy.json"],
+    ["../es/with_prior_es", "with_prior_es_random.json"],
+    ["../es/without_prior_es", "without_prior_es_random.json"],
     ]
     for net_file, record_file in filenames:
         target_nets = [
             load_net(net_file,CNNSimple, eval=True),
             load_net(None, eval=True),
         ]
-        player_classes = [CNNPlayer, GreedyPlayer]
+        player_classes = [CNNPlayer, RandomPlayer]
         destination_cards = [
             [[1, 3], [1, 6]],
             [[0, 6], [3, 6]],
