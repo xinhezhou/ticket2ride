@@ -72,29 +72,22 @@ def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, rou
     plt.savefig(fitness_file)
 
 if __name__ == '__main__':
-    # """
-    # TEST 1: with prior memory and checkpoint 
-    # """
-    # initial_checkpoint = "../sl/medium_m.pth.tar"
-    # selfplay_checkpoint ="with_prior_es.pth.tar"
-    # record_file = "../dataset/with_prior_es.json"
-    # memory_file = "../dataset/with_prior_es_memory.json"
-    # fitness_file = "with_prior_es.pdf"
-    # player_classes = [
-    #     CNNPlayer, RandomPlayer
-    # ]
-    # destination_cards = [
-    #     [[1, 3], [1, 6]],
-    #     [[0, 6], [3, 6]],
-    # ]
-    # train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, player_classes, destination_cards)
-
     """
-    TEST 2: without prior memory and checkpoint 
+    TEST 1: with prior memory and checkpoint 
     """
-    initial_checkpoint = None
-    selfplay_checkpoint ="es_selfplay.tar"
-    record_file = "es_record.json"
-    memory_file = "es_memory.json"
-    fitness_file = "es_fitness.pdf"
+    initial_checkpoint = "dqn_sl_checkpoint.pth.tar"
+    selfplay_checkpoint ="es_selfplay_sl.tar"
+    record_file = "es_sl_record.json"
+    memory_file = "es_sl_memory.json"
+    fitness_file = "es_sl_fitness.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file)
+
+    # """
+    # TEST 2: without prior memory and checkpoint 
+    # """
+    # initial_checkpoint = None
+    # selfplay_checkpoint ="es_selfplay.tar"
+    # record_file = "es_record.json"
+    # memory_file = "es_memory.json"
+    # fitness_file = "es_fitness.pdf"
+    # train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file)
