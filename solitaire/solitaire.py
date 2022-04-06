@@ -1,15 +1,16 @@
-from game import SolitaireGame
-from players.random_player import RandomPlayer
-from players.greedy_player import GreedyPlayer
-from players.frugal_player import FrugalPlayer
-from players.dqn_player import DQNPlayer, Network
-from utils.dqn_utils import plot_rewards_losses
 
 import numpy as np
-import matplotlib.pyplot as plt
-from copy import deepcopy
-import torch.nn as nn
-import torch.optim as optim
+import json
+import sys
+sys.path.append("..")
+from game import Game
+from nonRLplayers.random_player import RandomPlayer
+from nonRLplayers.greedy_player import GreedyPlayer
+from nonRLplayers.frugal_player import FrugalPlayer
+from RLplayers.cnn_player import CNNPlayer
+from RLplayers.rl_utils import load_net
+from RLplayers.cnn_network import CNNSimple
+from utils.game_utils import compute_availability_matrix, get_available_routes
 
 #########################
 ###    Game Setup    ####
@@ -40,7 +41,19 @@ edges = {
 }
 destination_cards = [
     (0, 6),
+    (1, 5)
 ]
+
+def check_win(player, game):
+    if len(player.destination_cards) == 0:
+        return 2
+    elif player.trains == 0 and len(player.destination_cards) == 1:
+        return 1
+    elif player.trains == 0 and len(player.destination_cards) == 2:
+        return 0
+    elif game.card_index > len(game.cards)-3:
+        return -1
+    return False
 
 def play_game(iterations, game_class, player_class, model=None, update=False):
     """
@@ -50,62 +63,77 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
     rounds = []
     losses = []
     rewards = []
-
-    for _ in range(iterations):
+    records = {}
+    eps = 0.2
+    for i in range(iterations):
         np.random.shuffle(deck_cards) 
         game = game_class(num_vertices, num_route_colors, edges, deck_cards)
-        player = player_class(num_card_colors, destination_cards, model)
+        player = player_class(num_card_colors, destination_cards, 10, 1, model)
         game.draw_cards(player)
         game.draw_cards(player)
-        num_rounds = 0
-        while len(player.destination_cards) > 0:
-            num_rounds += 1
-            if player.draw_or_claim(game.graph, game.status) == 0:
-                if game.card_index < len(game.cards):
-                    game.draw_cards(player)
+        record = {}
+        record["deck"] = game.cards
+        record["destinations"] = player.destination_cards
+        actions = []
+        while check_win(player, game) is False:
+            availability = compute_availability_matrix(game.graph, game.status, player)
+            available_routes = get_available_routes(availability)
+            if np.random.random() < eps:
+                action = np.random.randint(len(available_routes)+1)
+                if action == 0:
+                    cards = game.draw_cards(player)
+                    actions.append(cards)
                 else:
-                    print("no")
-                    break
-            else:
-                route = player.choose_route(game.graph, game.status)
-                current_status = deepcopy(game.status)
-                current_cards = player.cards[:]
-                game.claim_route(route, player)
-                if update:
-                    reward, loss = player.update_model(game.graph, current_status, game.status, current_cards, player.cards, route)
-                    losses.append(loss)
-                    rewards.append(reward)
-        
+                    route = available_routes[action-1]
+                    game.claim_route(route, player)
+                    actions.append(route)
 
-        rounds.append(num_rounds)
-        trains.append(player.trains_used)
+            elif len(available_routes) == 0 or player.draw_or_claim(game, [player]) == 0:
+                cards = game.draw_cards(player)
+                actions.append(cards)
+            else:
+                route = player.choose_route(game, [player])
+                if route[0] == 0 and route[1] == 0:
+                    print(available_routes)
+                game.claim_route(route, player)
+                actions.append(route)
+
+        reward = check_win(player, game)
+        record["actions"] = actions
+        record["reward"] = reward
+        rewards.append(reward)
+        records[i] = record
+    return rewards, records
+
+
+        # rounds.append(num_rounds)
+        # trains.append(player.trains_used)
         # print(player.cards)
         # print(player.routes)
-    if update:
-        return rewards, losses
-    else:
-        return trains, rounds
-
-# rewards, losses = play_game(5000, SolitaireGame, DQNPlayer, model, True)
-# print(rewards)
-# print(losses)
-# fig, ax = plt.subplots(2)
-# plot_rewards_losses(rewards, losses, ax, 50)
-# plt.savefig("../diagrams/solitaire_dqn_rewards_losses.pdf")
-
-# trains, rounds = play_game(1000, SolitaireGame, DQNPlayer, model, False)
-# print(trains)
-# print(rounds)
-# fig, ax = plt.subplots(2)
-# ax[0].hist(trains, density=False, bins=8)
-# ax[0].title.set_text("trains used")
-# ax[1].hist(rounds, density=False, bins=10, range=(0,50))
-# ax[1].title.set_text("number of rounds")
-# fig.tight_layout()
-# plt.savefig("../diagrams/solitaire_dqn.pdf")
-# # plt.show()
+    # if update:
+    #     return rewards, losses
+    # else:
+    #     return trains, rounds
 
 
+if __name__ == '__main__':
+    # rewards, records = play_game(1000, Game, RandomPlayer)
+    # print(sum(rewards))
 
 
+    # rewards, records = play_game(1000, Game, GreedyPlayer)
+    # with open("dqn_record.json", "w") as outfile:
+    #     json.dump(records, outfile)
+    # print(sum(rewards), records)
+
+    # rewards, records = play_game(100, Game, FrugalPlayer)
+    # print(sum(rewards))
+
+
+    # net_file = None
+    net_file = "dqn_sl_checkpoint.pth.tar"
+    model = load_net(net_file, 65, CNNSimple, eval=True)
+    rewards, records = play_game(1000, Game, CNNPlayer, model)
+    print(sum(rewards))
+    # print(records)
 
