@@ -35,6 +35,7 @@ class Game:
             - destination cards owned by the player
         """
         u,v,c = route
+        # print(u, v)
         assert u < v
         self.status[u][v][c] = player.id
         

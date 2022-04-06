@@ -3,7 +3,7 @@ import random
 from utils.game_utils import check_path, compute_availability_matrix, get_available_routes, compute_progress
 
 class FrugalPlayer:
-    def __init__(self, num_colors, destination_cards, trains, id):
+    def __init__(self, num_colors, destination_cards, trains, id, model=None):
         self.cards = num_colors * [0]
         self.routes = {}
         self.destination_cards = destination_cards
