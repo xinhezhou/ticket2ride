@@ -65,7 +65,7 @@ def optimize_model(policy_net, target_net, optimizer, memory, losses, BATCH_SIZE
 
 
 
-def train_cnn(policy_net, target_net, memory, checkpoint_file, loss_file, losses=[], BATCH_SIZE=100, GAMMA=0.99, TARGET_UPDATE=10, round=1000):
+def train_cnn(policy_net, target_net, memory, checkpoint_file, loss_file, losses=[], BATCH_SIZE=100, GAMMA=1, TARGET_UPDATE=10, round=1000):
 
     target_net.load_state_dict(policy_net.state_dict())
     target_net.eval()

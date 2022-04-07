@@ -75,7 +75,7 @@ if __name__ == '__main__':
     """
     TEST 1: with prior memory and checkpoint 
     """
-    initial_checkpoint = "dqn_sl_checkpoint.pth.tar"
+    initial_checkpoint = "es_sl_checkpoint.pth.tar"
     selfplay_checkpoint ="es_selfplay_sl.tar"
     record_file = "es_sl_record.json"
     memory_file = "es_sl_memory.json"

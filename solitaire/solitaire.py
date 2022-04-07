@@ -64,7 +64,7 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
     losses = []
     rewards = []
     records = {}
-    eps = 0.2
+    eps = 0
     for i in range(iterations):
         np.random.shuffle(deck_cards) 
         game = game_class(num_vertices, num_route_colors, edges, deck_cards)
@@ -131,9 +131,9 @@ if __name__ == '__main__':
 
 
     # net_file = None
-    net_file = "dqn_sl_checkpoint.pth.tar"
+    net_file = "dqn_selfplay.pth.tar"
     model = load_net(net_file, 65, CNNSimple, eval=True)
-    rewards, records = play_game(1000, Game, CNNPlayer, model)
+    rewards, records = play_game(100, Game, CNNPlayer, model)
     print(sum(rewards))
     # print(records)
 
