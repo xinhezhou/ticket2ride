@@ -54,7 +54,7 @@ if __name__ == '__main__':
         
     losses = []
     for _ in range(100):
-        rewards, records = play_game(100, Game, CNNPlayer, target_net, eps=0.2)
+        rewards, records = play_game(100, Game, CNNPlayer, model=target_net, eps=0.2)
         with open(record_file, "w") as outfile:
             json.dump(records, outfile)
         print(sum(rewards))
