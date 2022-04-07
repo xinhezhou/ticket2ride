@@ -55,7 +55,7 @@ def check_win(player, game):
         return -1
     return False
 
-def play_game(iterations, game_class, player_class, model=None, update=False):
+def play_game(iterations, game_class, player_class, eps=0, model=None, update=False):
     """
     Simulate gameplay and record number of rounds and trains used each time
     """
@@ -64,7 +64,6 @@ def play_game(iterations, game_class, player_class, model=None, update=False):
     losses = []
     rewards = []
     records = {}
-    eps = 0
     for i in range(iterations):
         np.random.shuffle(deck_cards) 
         game = game_class(num_vertices, num_route_colors, edges, deck_cards)
