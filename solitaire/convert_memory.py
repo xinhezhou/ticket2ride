@@ -5,8 +5,9 @@ from RLplayers.rl_utils import generate_state_matrix
 sys.path.append("../")
 from game import Game
 from nonRLplayers.random_player import RandomPlayer
+from utils.game_utils import compute_progress
 
-def generate_gameplay(records):
+def generate_gameplay(records, input_f=generate_state_matrix):
     """
     Generate gameplays from records and push them into memory
     for CNN training
@@ -44,19 +45,19 @@ def generate_gameplay(records):
         players = [player]
         for action in record["actions"]:
             counter += 1
-            reward = 0
-            state = generate_state_matrix(game, players).unsqueeze(0)
+            state = input_f(game, players).unsqueeze(0)
             player = players[0]
             if len(action) == 2:
                 choice = 0
                 game.draw_cards(player)
+                reward = 0
             else:
                 u, v, c = action
                 choice = 1 + u*49 + v*7 + c
+                reward = compute_progress(game.graph, game.status, action, player.destination_cards, player.id)
                 game.claim_route(action, player)
-                if action == record["actions"][-1]:
-                    reward = record["reward"]
-            next_state = generate_state_matrix(game, players).unsqueeze(0)
+            next_state = input_f(game, players).unsqueeze(0)
+            # print(next_state.shape)
             if player.id == 1:
                 entry = {}
                 entry["state"]  = state.tolist()
@@ -67,10 +68,10 @@ def generate_gameplay(records):
             players = players[::-1]
     return memory
 
-def convert_records(json_file, memory_file):
+def convert_records(json_file, memory_file, input_f=generate_state_matrix):
     f = open(json_file)
     records = json.load(f)
-    records = generate_gameplay(records)
+    records = generate_gameplay(records,input_f)
     with open(memory_file, "w") as outfile:
         json.dump(records, outfile)
         

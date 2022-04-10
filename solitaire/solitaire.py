@@ -1,4 +1,3 @@
-
 import numpy as np
 import json
 import sys
@@ -7,6 +6,7 @@ from game import Game
 from nonRLplayers.random_player import RandomPlayer
 from nonRLplayers.greedy_player import GreedyPlayer
 from nonRLplayers.frugal_player import FrugalPlayer
+from RLplayers.linear_player import DQNPlayer, QValueNetwork
 from RLplayers.cnn_player import CNNPlayer
 from RLplayers.rl_utils import load_net
 from RLplayers.cnn_network import CNNSimple
@@ -120,10 +120,10 @@ if __name__ == '__main__':
     # print(sum(rewards))
 
 
-    # rewards, records = play_game(1000, Game, GreedyPlayer)
-    # with open("dqn_record.json", "w") as outfile:
-    #     json.dump(records, outfile)
-    # print(sum(rewards), records)
+    rewards, records = play_game(1000, Game, GreedyPlayer)
+    with open("dqn_greedy_record.json", "w") as outfile:
+        json.dump(records, outfile)
+    print(sum(rewards))
 
     # rewards, records = play_game(100, Game, FrugalPlayer)
     # print(sum(rewards))
@@ -131,8 +131,10 @@ if __name__ == '__main__':
 
     # net_file = None
     net_file = "dqn_selfplay.pth.tar"
-    model = load_net(net_file, 65, CNNSimple, eval=True)
-    rewards, records = play_game(100, Game, CNNPlayer, model)
+    model = load_net(net_file, 437, QValueNetwork, eval=True)
+    rewards, records = play_game(1000, Game, DQNPlayer, eps=0, model=model)
     print(sum(rewards))
+    with open("dqn_selfplay_record.json", "w") as outfile:
+        json.dump(records, outfile)
     # print(records)
 
