@@ -33,10 +33,8 @@ def compute_fitness(w, target_net):
     return sum(rewards)/len(rewards)
     
 
-def optimize_model(target_net, average_fitnesses, max_fitnesses):
+def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
     npop = 10    # population size
-    sigma = 0.1    # noise standard deviation
-    alpha = 0.001 # size of the elite group
     # need to compute the average and variance of all terms in parameter
     w = target_net.state_dict()
     R = np.zeros(npop)
@@ -56,13 +54,15 @@ def optimize_model(target_net, average_fitnesses, max_fitnesses):
 
 
 def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=1):
+    sigma = 0.1
     target_net = load_net(initial_checkpoint, 437, QValueNetwork)
     average_fitnesses = []
     max_fitnesses = []
     for _ in range(round):
-        optimize_model(target_net, average_fitnesses, max_fitnesses)
+        optimize_model(target_net, average_fitnesses, max_fitnesses, sigma)
         if _ % 10 == 0:
             print(average_fitnesses[-1], max_fitnesses[-1])
+        sigma *= 0.999
     torch.save({
                 'state_dict': target_net.state_dict(),
             }, selfplay_checkpoint)
@@ -78,9 +78,9 @@ if __name__ == '__main__':
     TEST 1: with prior memory and checkpoint 
     """
     initial_checkpoint = None
-    selfplay_checkpoint ="es_selfplay_jitter.tar"
-    average_fitness_file = "es_average_fitness_jitter.pdf"
-    max_fitness_file = "es_max_fitness_jitter.pdf"
+    selfplay_checkpoint ="es_selfplay.pth.tar"
+    average_fitness_file = "es_average.pdf"
+    max_fitness_file = "es_max_fitness.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
 
     # """

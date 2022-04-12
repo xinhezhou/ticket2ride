@@ -11,6 +11,7 @@ from RLplayers.cnn_player import CNNPlayer
 from RLplayers.rl_utils import load_net
 from RLplayers.cnn_network import CNNSimple
 from utils.game_utils import compute_availability_matrix, get_available_routes, compute_progress
+import matplotlib.pyplot as plt
 
 #########################
 ###    Game Setup    ####
@@ -147,7 +148,7 @@ def compute_route_freq(records, k, win_file=None):
 
 if __name__ == '__main__':
     # rewards, records = play_game(100, Game, RandomPlayer)
-    # print(sum(rewards))
+    # print(sum(rewards)/len(rewards))
 
 
     # rewards, records = play_game(1000, Game, GreedyPlayer)
@@ -161,31 +162,90 @@ if __name__ == '__main__':
     # print(sum(rewards)/len(rewards))
     # with open("dqn_selfplay_record.json", "w") as outfile:
     #     json.dump(records, outfile)
-    # print(records)
 
-    # f = open("dqn_greedy_record.json")
-    # records = json.load(f)
-    # route_freqs = compute_route_freq(records, 50, None)
 
-    # f = open("dqn_selfplay_record.json")
-    # records = json.load(f)
-    # route_freqs = compute_route_freq(records, 40, None)
 
-    # dqn_total = 0
-    # greedy_total = 0
-    # for i in range(1000):
-    #     np.random.shuffle(deck_cards) 
-    #     dqn_reward, _= play_game(1, Game, DQNPlayer, eps=0, model=model, deck=deck_cards)
-    #     greedy_reward, _ = play_game(1, Game, GreedyPlayer, deck=deck_cards)
-    #     dqn_total += dqn_reward[0]
-    #     greedy_total += greedy_reward[0]
-    #     if dqn_reward[0] > greedy_reward[0]:
-    #         print(_)
+    # net_file = "es_selfplay.tar"
+    # model = load_net(net_file, 437, QValueNetwork, eval=True)
+    # rewards, _ = play_game(1000, Game, DQNPlayer, eps=0, model=model, deck=None)
+    # print(sum(rewards)/len(rewards))
+    # with open("es_selfplay_record.json", "w") as outfile:
+    #     json.dump(records, outfile)
+
+
+    random_records = {}
+    random_rewards = []
+    greedy_records = {}
+    greedy_rewards = []
+    dqn_records = {}
+    dqn_rewards = []
+    es_records = {}
+    es_rewards = []
+    dqn_model = load_net( "checkpoints/dqn_selfplay.pth.tar", 437, QValueNetwork, eval=True)
+    es_model = load_net( "checkpoints/es_selfplay.pth.tar", 437, QValueNetwork, eval=True)
+    for i in range(1000):
+        np.random.shuffle(deck_cards) 
+        dqn_reward, dqn_record= play_game(1, Game, DQNPlayer, eps=0, model=dqn_model, deck=deck_cards)
+        greedy_reward, greedy_record = play_game(1, Game, GreedyPlayer, deck=deck_cards)
+        random_reward, random_record = play_game(1, Game, RandomPlayer, deck=deck_cards)
+        es_reward, es_record = play_game(1, Game, DQNPlayer, eps=0, model=es_model, deck=deck_cards)
+
+        random_rewards.append(random_reward[0])
+        random_records[i] = random_record[0]
+        greedy_rewards.append(greedy_reward[0])
+        greedy_records[i] = greedy_record[0]
+        dqn_rewards.append(dqn_reward[0])
+        dqn_records[i] = dqn_record[0]
+        es_rewards.append(es_reward[0])
+        es_records[i] = es_record[0]
     
-    # print(dqn_total, greedy_total)
+    # plt.hist(dqn_rewards, 
+    #      label= "DQN",
+    #      alpha=0.6)
+    # plt.hist(es_rewards, 
+    #         label='ES',
+    #         alpha=0.6)
+    # plt.hist(random_rewards, 
+    #         label='Random', 
+    #         alpha=0.6)
+    # plt.hist(greedy_rewards, 
+    #         label='Greedy', 
+    #         alpha=0.6)
+
+    # plt.xlabel('score')
+    # plt.ylabel('count')
+    
+    # plt.legend(loc='upper left')
+    # plt.title('Score Distributions')
+    # plt.show()
+        
+    with open("random_record.json", "w") as outfile:
+        json.dump(random_records, outfile)
+    with open("greedy_record.json", "w") as outfile:
+        json.dump(greedy_records, outfile)
+    with open("dqn_record.json", "w") as outfile:
+        json.dump(dqn_records, outfile)
+    with open("es_record.json", "w") as outfile:
+        json.dump(es_records, outfile) 
 
 
-    net_file = "es_selfplay.tar"
-    model = load_net(net_file, 437, QValueNetwork, eval=True)
-    rewards, _ = play_game(1, Game, DQNPlayer, eps=0, model=model, deck=None)
-    print(sum(rewards)/len(rewards), _)
+    print(sum(random_rewards), sum(greedy_rewards), sum(dqn_rewards), sum(es_rewards))
+
+
+
+    f = open("random_record.json")
+    records = json.load(f)
+    route_freqs = compute_route_freq(records, 50, None)
+
+    f = open("greedy_record.json")
+    records = json.load(f)
+    route_freqs = compute_route_freq(records, 50, None)
+
+    f = open("dqn_record.json")
+    records = json.load(f)
+    route_freqs = compute_route_freq(records, 50, None)
+
+    f = open("es_record.json")
+    records = json.load(f)
+    route_freqs = compute_route_freq(records, 40, None)
+
