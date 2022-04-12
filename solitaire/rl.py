@@ -67,7 +67,7 @@ if __name__ == '__main__':
             json.dump(records, outfile)
         convert_records(record_file, memory_file, input_f=compute_input_matrix)
         push_memory(memory_file, memory)
-        optimize_model(policy_net, target_net, optimizer, memory, losses, 100, 0.999)
+        optimize_model(policy_net, target_net, optimizer, memory, losses, 100, 0.9)
         
         if i % 1000 == 0:
             rewards, records = play_game(1, Game, DQNPlayer, model=policy_net, eps=0)

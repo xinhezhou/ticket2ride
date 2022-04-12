@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 from solitaire import play_game
 sys.path.append("../")
-from RLplayers.cnn_network import CNNSimple
-from RLplayers.cnn_player import CNNPlayer
+from RLplayers.linear_player import DQNPlayer, QValueNetwork
 from RLplayers.rl_utils import load_net
 from game import Game
 
@@ -28,59 +27,61 @@ def update(weights, sigma, jitters):
     return new_weights
 
 
-def compute_fitness(w, target_net, ):
+def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
-    rewards, _ = play_game(50, Game, CNNPlayer, target_net)
-    return sum(rewards)
+    rewards, _ = play_game(50, Game, DQNPlayer, eps=0, model=target_net, deck=None)
+    return sum(rewards)/len(rewards)
     
 
-def optimize_model(target_net, fitnesses):
-    npop = 20    # population size
-    num_episodes = 1
+def optimize_model(target_net, average_fitnesses, max_fitnesses):
+    npop = 10    # population size
     sigma = 0.1    # noise standard deviation
-    alpha = 0.0001  # learning rate
+    alpha = 0.001 # size of the elite group
+    # need to compute the average and variance of all terms in parameter
     w = target_net.state_dict()
-    for i in range(num_episodes):
-        R = np.zeros(npop)
-        jitters = {}
-        for param in w:
-            jitters[param] = []
-        for j in range(npop):
-            w_try = update(w, sigma, jitters)
-            R[j] = compute_fitness(w_try,  target_net)
-        print(max(R))
-        if np.sum(R) != 0 and np.std(R)!= 0:
-            print("here")
-            fitnesses.append(np.sum(R))
-            A = (R - np.mean(R)) / np.std(R)
-            for param in w:
-                N = torch.stack(jitters[param])
-                w[param] = w[param] + (alpha/(npop*sigma) * np.dot(N.T, A)).T
+    R = np.zeros(npop)
+    parameters = []
+    jitters = {}
+    for param in w:
+        jitters[param] = []
+    for j in range(npop):
+        w_try = update(w, sigma, jitters)
+        R[j] = compute_fitness(w_try,  target_net)
+        parameters.append(w_try)
+    average_fitnesses.append(sum(R)/len(R))
+    max_fitnesses.append(max(R))
+    target_net.load_state_dict(parameters[np.argmax(R)])
 
 
 
-def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file, round=100):
-    target_net = load_net(initial_checkpoint, 65, CNNSimple)
-    fitnesses = []
+
+def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=1):
+    target_net = load_net(initial_checkpoint, 437, QValueNetwork)
+    average_fitnesses = []
+    max_fitnesses = []
     for _ in range(round):
-        optimize_model(target_net, fitnesses)
+        optimize_model(target_net, average_fitnesses, max_fitnesses)
+        if _ % 10 == 0:
+            print(average_fitnesses[-1], max_fitnesses[-1])
     torch.save({
                 'state_dict': target_net.state_dict(),
             }, selfplay_checkpoint)
     plt.clf()
-    plt.plot(range(len(fitnesses)), fitnesses)
-    plt.savefig(fitness_file)
+    plt.plot(range(len(average_fitnesses)), average_fitnesses)
+    plt.savefig(average_fitness_file)
+    plt.clf()
+    plt.plot(range(len(max_fitnesses)), max_fitnesses)
+    plt.savefig(max_fitness_file)
 
 if __name__ == '__main__':
     """
     TEST 1: with prior memory and checkpoint 
     """
-    initial_checkpoint = "es_sl_checkpoint.pth.tar"
-    selfplay_checkpoint ="es_selfplay_sl.tar"
-    record_file = "es_sl_record.json"
-    memory_file = "es_sl_memory.json"
-    fitness_file = "es_sl_fitness.pdf"
-    train_es_selfplay(initial_checkpoint, selfplay_checkpoint, fitness_file)
+    initial_checkpoint = None
+    selfplay_checkpoint ="es_selfplay_jitter.tar"
+    average_fitness_file = "es_average_fitness_jitter.pdf"
+    max_fitness_file = "es_max_fitness_jitter.pdf"
+    train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
 
     # """
     # TEST 2: without prior memory and checkpoint 
