@@ -69,7 +69,7 @@ if __name__ == '__main__':
         push_memory(memory_file, memory)
         optimize_model(policy_net, target_net, optimizer, memory, losses, 100, 0.9)
         
-        if i % 1000 == 0:
+        if i % 2000 == 0:
             rewards, records = play_game(1, Game, DQNPlayer, model=policy_net, eps=0)
             print(eps, sum(rewards)/len(rewards))
             target_net.load_state_dict(policy_net.state_dict())
