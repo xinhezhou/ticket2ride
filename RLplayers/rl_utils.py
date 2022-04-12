@@ -127,11 +127,10 @@ def generate_state_matrix(game, players):
     return torch.cat(matrices)
 
 def load_net(checkpoint_file, input_dim, network, eval=False):
-    net = network((input_dim, 7, 7), 7*7*7+1, 32)
+    net = network(input_dim, 7*7*7+1, 32)
     if eval:
         net.eval()
     if checkpoint_file is not None:
-
         checkpoint = torch.load(checkpoint_file)
         net.load_state_dict(checkpoint['state_dict'])
     return net

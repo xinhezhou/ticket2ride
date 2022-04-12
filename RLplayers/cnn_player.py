@@ -14,7 +14,7 @@ class CNNPlayer:
         self.net = model
      
 
-    def choose_route(self, game, players, eps=False):
+    def choose_route(self, game, players):
         """
         chooses a route based on the route policy network (route_net)
         and the availability of routes
@@ -24,9 +24,6 @@ class CNNPlayer:
         dqn_output = self.net(dqn_input)
         dqn_output -= torch.min(dqn_output)
         availability = compute_availability_matrix(game.graph, game.status, self)
-        if eps:
-            routes = get_available_routes(availability)
-            return routes[np.random.randint(len(routes))]
 
         availability = np.reshape(availability, (7*7*7, 1))
         
@@ -47,15 +44,12 @@ class CNNPlayer:
         Choose the action associated withe the highest value
         based on the card policy
         """
-        if eps:
-            return np.random.randint(2)
         availability = compute_availability_matrix(game.graph, game.status, self)
         availability = np.reshape(availability, (7*7*7, 1))
         dqn_input = generate_state_matrix(game, players).unsqueeze(0)
         dqn_output = self.net(dqn_input)
         dqn_output -= torch.min(dqn_output)
         action_dist = torch.mul(torch.transpose(dqn_output, 0, 1)[1:], torch.from_numpy(availability))
-        # print(dqn_output)
         if dqn_output[0][0] > torch.max(action_dist):
             return 0
         else:
