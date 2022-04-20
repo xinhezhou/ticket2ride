@@ -332,8 +332,8 @@ if __name__ == '__main__':
     # """
     # TEST 3: PG vs PG
     # """
-    initial_defender = "greedy_pg.pth.tar"
-    initial_attacker = "pg_greedy.pth.tar"
+    initial_defender = None
+    initial_attacker = None
     defender_checkpoint ="pg_pg_defender.pth.tar"
     defender_reward_file = "pg_pg_defender_reward.pdf"
     attacker_checkpoint ="pg_pg_attacker.pth.tar"
