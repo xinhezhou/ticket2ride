@@ -349,7 +349,7 @@ if __name__ == '__main__':
     defender_running_reward = 0
     attacker_history_reward = [] # store moving average of empirical rewards
     defender_history_reward = []
-    for step in range(10000):
+    for step in range(20000):
         actions, rewards, log_probs, values, attacker_ep_reward = rollout_attacker([attacker_net, defender_net], Game, [PGPlayer, GreedyPlayer], deck=None)
         attacker_running_reward = 0.05 * attacker_ep_reward + (1 - 0.05) * attacker_running_reward
         attacker_history_reward.append(attacker_running_reward)
