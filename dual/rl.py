@@ -350,12 +350,12 @@ if __name__ == '__main__':
     attacker_history_reward = [] # store moving average of empirical rewards
     defender_history_reward = []
     for step in range(10000):
-        actions, rewards, log_probs, values, attacker_ep_reward = rollout_attacker([attacker_net, defender_net], Game, [PGPlayer, PGPlayer], deck=[0] * 12  + [1,2,3,4,5,6] * 10 )
+        actions, rewards, log_probs, values, attacker_ep_reward = rollout_attacker([attacker_net, defender_net], Game, [PGPlayer, GreedyPlayer], deck=None)
         attacker_running_reward = 0.05 * attacker_ep_reward + (1 - 0.05) * attacker_running_reward
         attacker_history_reward.append(attacker_running_reward)
         loss = optimize_model(attacker_net, attacker_optimizer, rewards, log_probs, gamma)
 
-        actions, rewards, log_probs, values, defender_ep_reward = rollout_defender([attacker_net, defender_net], Game, [PGPlayer, PGPlayer], deck=[0] * 12  + [1,2,3,4,5,6] * 10 )
+        actions, rewards, log_probs, values, defender_ep_reward = rollout_defender([attacker_net, defender_net], Game, [GreedyPlayer, PGPlayer], deck=None)
         defender_running_reward = 0.05 * defender_ep_reward + (1 - 0.05) * defender_running_reward
         defender_history_reward.append(defender_running_reward)
         loss = optimize_model(defender_net, defender_optimizer, rewards, log_probs, gamma)
