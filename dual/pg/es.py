@@ -5,7 +5,7 @@ import sys
 sys.path.append("../")
 from dual import play_game
 sys.path.append("../")
-from RLplayers.pg_player import PGPlayer
+from RLplayers.pg_player import PGNetwork, PGPlayer
 from nonRLplayers.greedy_player import GreedyPlayer
 from RLplayers.rl_utils import load_net
 from game import Game
@@ -31,8 +31,8 @@ def update(weights, sigma, jitters):
 
 def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
-    rewards, _ = play_game(1000, Game, [PGPlayer, GreedyPlayer], models=[target_net, None], deck=None)
-    return sum(rewards)/len(rewards)
+    rewards, _ = play_game(100, Game, [PGPlayer, GreedyPlayer], models=[target_net, None], deck=None)
+    return sum(rewards[0])/len(rewards[0])
     
 
 def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
@@ -57,7 +57,7 @@ def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
 
 def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=1):
     sigma = 0.1
-    target_net = load_net(initial_checkpoint, 437, QValueNetwork)
+    target_net = load_net(initial_checkpoint, 874, PGNetwork)
     average_fitnesses = []
     max_fitnesses = []
     for _ in range(round):
@@ -80,9 +80,9 @@ if __name__ == '__main__':
     TEST 1: with prior memory and checkpoint 
     """
     initial_checkpoint = None
-    selfplay_checkpoint ="es_selfplay.pth.tar"
-    average_fitness_file = "es_average.pdf"
-    max_fitness_file = "es_max_fitness.pdf"
+    selfplay_checkpoint ="es_greedy.pth.tar"
+    average_fitness_file = "es_greedy_average_fitness.pdf"
+    max_fitness_file = "es_greedy_max_fitness.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
 
     # """
