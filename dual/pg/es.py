@@ -31,8 +31,9 @@ def update(weights, sigma, jitters):
 
 def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
-    rewards, _ = play_game(100, Game, [GreedyPlayer, PGPlayer], models=[None, target_net], deck=None)
-    return sum(rewards[1])/len(rewards[1])
+    rewards_first, _ = play_game(50, Game, [PGPlayer, GreedyPlayer], models=[target_net, None], deck=None)
+    rewards_second, _ = play_game(50, Game, [GreedyPlayer, PGPlayer], models=[None, target_net], deck=None)
+    return (sum(rewards_first[1])/len(rewards_first[1]) + sum(rewards_second[1])/len(rewards_second[1])) / 2
     
 
 def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     selfplay_checkpoint ="greedy_es.pth.tar"
     average_fitness_file = "greedy_es_average_fitness.pdf"
     max_fitness_file = "greedy_es_max_fitness.pdf"
-    train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
+    train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=120)
 
     # """
     # TEST 2: without prior memory and checkpoint 
