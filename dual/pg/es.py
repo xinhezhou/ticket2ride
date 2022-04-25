@@ -80,9 +80,9 @@ if __name__ == '__main__':
     TEST 1: with prior memory and checkpoint 
     """
     initial_checkpoint = None
-    selfplay_checkpoint ="es_greedy.pth.tar"
-    average_fitness_file = "es_greedy_average_fitness.pdf"
-    max_fitness_file = "es_greedy_max_fitness.pdf"
+    selfplay_checkpoint ="greedy_es.pth.tar"
+    average_fitness_file = "greedy_es_average_fitness.pdf"
+    max_fitness_file = "greedy_es_max_fitness.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
 
     # """
