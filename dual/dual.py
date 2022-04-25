@@ -1,7 +1,7 @@
 import numpy as np
 import json
 import sys
-sys.path.append("..")
+sys.path.append("../../")
 from game import Game
 from nonRLplayers.random_player import RandomPlayer
 from nonRLplayers.greedy_player import GreedyPlayer
@@ -130,57 +130,72 @@ def play_game(iterations, game_class, player_classes, eps=0, models=[None,None],
 
 
 def compute_route_freq(records, k, win_file=None):
-    route_freq = {}
+    route_freq_a = {}
+    route_freq_b = {}
     for key in records:
         record = records[key]
         actions = record["actions"]
         # print(actions[0])
-        routes = []
+        routes_a = []
+        routes_b = []
         for i in range(0, len(actions)):
             action = actions[i]
-            if i % 2 == 1 and len(action) == 3:
-                routes.append(tuple(action[:2]))
-        routes.sort()
-        if tuple(routes) in route_freq:
-            route_freq[tuple(routes)] += 1
+            if len(action) == 3:
+                if i % 2 == 0:
+                    routes_a.append(tuple(action[:2]))
+                else:
+                    routes_b.append(tuple(action[:2]))
+        routes_a.sort()
+        routes_b.sort()
+        if tuple(routes_a) in route_freq_a:
+            route_freq_a[tuple(routes_a)] += 1
         else:
-            route_freq[tuple(routes)] = 1
+            route_freq_a[tuple(routes_a)] = 1
+        
+        if tuple(routes_b) in route_freq_b:
+            route_freq_b[tuple(routes_b)] += 1
+        else:
+            route_freq_b[tuple(routes_b)] = 1
 
-    for key in route_freq:
-        if route_freq[key] > k:
-            print(key, route_freq[key])
-    print(sorted(route_freq.values()))
-    return route_freq
+    print("attacker")
+    for key in route_freq_a:
+        if route_freq_a[key] > k:
+            print(key, route_freq_a[key])
+    print(sorted(route_freq_a.values()))
+
+
+    print("defender")
+    for key in route_freq_b:
+        if route_freq_b[key] > k:
+            print(key, route_freq_b[key])
+    print(sorted(route_freq_b.values()))
+    return route_freq_a, route_freq_b
 
 
 
 if __name__ == '__main__':
     # rewards, records = play_game(1, Game, [RandomPlayer, GreedyPlayer], models=[None, None], deck=[0] * 12  + [1,2,3,4,5,6] * 10)
     # print(sum(rewards)/len(rewards))
-    rewards, records = play_game(1, Game, [GreedyPlayer, GreedyPlayer], models=[None, None], deck=[0] * 12  + [1,2,3,4,5,6] * 10)
-    print(rewards, records)
+    # rewards, records = play_game(1000, Game, [GreedyPlayer, GreedyPlayer], models=[None, None], deck=None)
+    # print(sum(rewards[0]), sum(rewards[1]))
    
-    attacker_net = load_net("pg_greedy.pth.tar", 874, PGNetwork)
-    rewards, records = play_game(1, Game, [PGPlayer, GreedyPlayer], models=[attacker_net, None], deck=[0] * 12  + [1,2,3,4,5,6] * 10)
-    print(rewards, records)
-    # with open("pg_greedy_record.json", "w") as outfile:
+    # attacker_net = load_net("pg_greedy.pth.tar", 874, PGNetwork)
+    # rewards, records = play_game(1000, Game, [PGPlayer, RandomPlayer], models=[attacker_net, None], deck=None)
+    # print(sum(rewards[0]), sum(rewards[1]))
+    # with open("pg_random_record.json", "w") as outfile:
     #     json.dump(records, outfile) 
     # print(sum(rewards)/len(rewards))
 
-    defender_net = load_net("greedy_pg.pth.tar", 874, PGNetwork)
-    rewards, records = play_game(1, Game, [GreedyPlayer, PGPlayer], models=[None,defender_net], deck=[0] * 12  + [1,2,3,4,5,6] * 10)
-    print(rewards, records)
-    # with open("greedy_pg_record.json", "w") as outfile:
-    #     json.dump(records, outfile) 
-    # print(sum(rewards)/len(rewards))
+    defender_net = load_net("pg/greedy_pg.pth.tar", 874, PGNetwork)
+    rewards, records = play_game(1000, Game, [GreedyPlayer, PGPlayer], models=[None,defender_net], deck=None)
+    print(sum(rewards[0]), sum(rewards[1]))
+    with open("greedy_pg_record.json", "w") as outfile:
+        json.dump(records, outfile) 
 
-    # f = open("pg_greedy_record.json")
+    # f = open("pg_random_record.json")
     # records = json.load(f)
     # route_freqs = compute_route_freq(records, 40, None)
 
     # f = open("greedy_pg_record.json")
     # records = json.load(f)
-    # route_freqs = compute_route_freq(records, 40, None)
-
-    rewards, records = play_game(1, Game, [PGPlayer, PGPlayer], models=[attacker_net,defender_net], deck=[0] * 12  + [1,2,3,4,5,6] * 10)
-    print(rewards, records)
+    # route_freqs = compute_route_freq(records, 25, None)
