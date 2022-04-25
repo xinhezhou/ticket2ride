@@ -41,7 +41,7 @@ edges = {
 }
 destination_cards = [
     [(1, 3),(1, 6)],
-    [(0, 6), (3, 6)]
+    [(1, 3), (1, 6)]
 ]
 
 def check_win(players, game):
