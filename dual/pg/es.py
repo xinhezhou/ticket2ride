@@ -32,7 +32,7 @@ def update(weights, sigma, jitters):
 def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
     rewards, _ = play_game(100, Game, [GreedyPlayer, PGPlayer], models=[None, target_net], deck=None)
-    return sum(rewards[0])/len(rewards[0])
+    return sum(rewards[1])/len(rewards[1])
     
 
 def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
