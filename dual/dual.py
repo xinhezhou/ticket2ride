@@ -1,7 +1,7 @@
 import numpy as np
 import json
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from game import Game
 from nonRLplayers.random_player import RandomPlayer
 from nonRLplayers.greedy_player import GreedyPlayer
