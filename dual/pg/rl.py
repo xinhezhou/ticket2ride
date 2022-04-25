@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import torch
 import sys
 import numpy as np
-sys.path.append("..")
+sys.path.append("../..")
 from nonRLplayers.greedy_player import GreedyPlayer
 from RLplayers.exprience_replay import ReplayMemory
 from RLplayers.rl_utils import push_memory, load_net
