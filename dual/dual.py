@@ -41,7 +41,7 @@ edges = {
 }
 destination_cards = [
     [(1, 3),(1, 6)],
-    [(0, 6), (3, 6)]
+    [(1, 3), (1, 6)]
 ]
 
 def check_win(players, game):
@@ -97,11 +97,11 @@ def play_game(iterations, game_class, player_classes, eps=0, models=[None,None],
             defender_player = players[1]
             availability = compute_availability_matrix(game.graph, game.status, defender_player)
             available_routes = get_available_routes(availability)
-            if len(available_routes) == 0 or defender_player.draw_or_claim(game, players) == 0:
+            if len(available_routes) == 0 or defender_player.draw_or_claim(game, players[::-1]) == 0:
                 cards = game.draw_cards(defender_player)
                 actions.append(cards)
             else:
-                route = defender_player.choose_route(game, players)
+                route = defender_player.choose_route(game, players[::-1])
                 defender_reward += compute_progress(game.graph, game.status, route, defender_player.destination_cards, defender_player.id) * coeff
                 game.claim_route(route, defender_player)
                 actions.append(route)
@@ -179,18 +179,17 @@ if __name__ == '__main__':
     # rewards, records = play_game(1000, Game, [GreedyPlayer, GreedyPlayer], models=[None, None], deck=None)
     # print(sum(rewards[0]), sum(rewards[1]))
    
-    # attacker_net = load_net("pg_greedy.pth.tar", 874, PGNetwork)
-    # rewards, records = play_game(1000, Game, [PGPlayer, RandomPlayer], models=[attacker_net, None], deck=None)
+    # attacker_net = load_net("pg/pg_greedy.pth.tar", 874, PGNetwork)
+    # rewards, records = play_game(1000, Game, [PGPlayer, GreedyPlayer], models=[attacker_net, None], deck=None)
     # print(sum(rewards[0]), sum(rewards[1]))
-    # with open("pg_random_record.json", "w") as outfile:
+    # with open("es_random_record.json", "w") as outfile:
     #     json.dump(records, outfile) 
-    # print(sum(rewards)/len(rewards))
 
     defender_net = load_net("pg/greedy_pg.pth.tar", 874, PGNetwork)
     rewards, records = play_game(1000, Game, [GreedyPlayer, PGPlayer], models=[None,defender_net], deck=None)
     print(sum(rewards[0]), sum(rewards[1]))
-    with open("greedy_pg_record.json", "w") as outfile:
-        json.dump(records, outfile) 
+    # with open("greedy_pg_record.json", "w") as outfile:
+    #     json.dump(records, outfile) 
 
     # f = open("pg_random_record.json")
     # records = json.load(f)

@@ -33,7 +33,7 @@ def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
     rewards_first, _ = play_game(50, Game, [PGPlayer, GreedyPlayer], models=[target_net, None], deck=None)
     rewards_second, _ = play_game(50, Game, [GreedyPlayer, PGPlayer], models=[None, target_net], deck=None)
-    return (sum(rewards_first[1])/len(rewards_first[1]) + sum(rewards_second[1])/len(rewards_second[1])) / 2
+    return (sum(rewards_first[0])/len(rewards_first[0]) + sum(rewards_second[1])/len(rewards_second[1])) / 2
     
 
 def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
