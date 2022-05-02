@@ -81,9 +81,9 @@ if __name__ == '__main__':
     TEST 1: with prior memory and checkpoint 
     """
     initial_checkpoint = None
-    selfplay_checkpoint ="es_supervised/model.pth.tar"
-    average_fitness_file = "es_supervised/average_fitness.pdf"
-    max_fitness_file = "es_supervised/max_fitness.pdf"
+    selfplay_checkpoint ="es_selfplay/model.pth.tar"
+    average_fitness_file = "es_selfplay/average_fitness.pdf"
+    max_fitness_file = "es_selfplay/max_fitness.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=120)
 
     # """

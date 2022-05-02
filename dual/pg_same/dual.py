@@ -176,12 +176,12 @@ def compute_route_freq(records, k, win_file=None):
     return route_freq_a, route_freq_b
 
 players = [
-    (PGPlayer, "SupervisedPG", "pg_supervised/model.pth.tar")
-    # (PGPlayer, "SelfplayPG", "pg_selfplay/model.pth.tar")
-    # (PGPlayer, "SupervisedES", "es_supervised/model.pth.tar")
-    # (PGPlayer, "SelfplayES", "es_selfplay/model.pth.tar")
-    # (RandomPlayer, "Random", None)
-    # (GreedyPlayer, "Greedy", None)
+    (PGPlayer, "SupervisedPG", "pg_supervised/model.pth.tar"),
+    (PGPlayer, "SelfplayPG", "pg_selfplay/model.pth.tar"),
+    # (PGPlayer, "SupervisedES", "es_supervised/model.pth.tar"),
+    # (PGPlayer, "SelfplayES", "es_selfplay/model.pth.tar"),
+    # (RandomPlayer, "Random", None),
+    # (GreedyPlayer, "Greedy", None),
 ]
 
 average_rewards = []
@@ -210,6 +210,7 @@ if __name__ == '__main__':
                 records[i] = record[0]
             average_rewards[-1].append((sum(player_a_rewards)/len(player_a_rewards), sum(player_b_rewards)/len(player_b_rewards)))
 
+            plt.clf()
             plt.hist(player_a_rewards, 
                 label= player_a_label,
                 color= player_a_color,
@@ -226,7 +227,7 @@ if __name__ == '__main__':
 
             title = player_a[1] + "_" + player_b[1]
             plt.savefig(title + '.pdf') 
-            plt.show()
+            # plt.show()
             with open(title + ".json", "w") as outfile:
                 json.dump(records, outfile) 
             # plt.savefig(title + '.pdf')  
