@@ -31,8 +31,8 @@ def update(weights, sigma, jitters):
 
 def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
-    rewards_first, _ = play_game(50, Game, [PGPlayer, GreedyPlayer], models=[target_net, target_net], deck=None)
-    rewards_second, _ = play_game(50, Game, [GreedyPlayer, PGPlayer], models=[None, target_net], deck=None)
+    rewards_first, _ = play_game(50, Game, [PGPlayer, PGPlayer], models=[target_net, target_net], deck=None)
+    rewards_second, _ = play_game(50, Game, [PGPlayer, PGPlayer], models=[None, target_net], deck=None)
     return (sum(rewards_first[0])/len(rewards_first[0]) + sum(rewards_second[1])/len(rewards_second[1])) / 2
     
 

@@ -1,7 +1,7 @@
 import numpy as np
 import json
 import sys
-sys.path.append("../../")
+sys.path.append("../")
 from game import Game
 from nonRLplayers.random_player import RandomPlayer
 from nonRLplayers.greedy_player import GreedyPlayer
@@ -207,23 +207,23 @@ if __name__ == '__main__':
     pg_rewards = []
     es_records = {}
     es_rewards = []
-    pg_model = load_net( "pg/pg_greedy.pth.tar", 874, PGNetwork, eval=True)
-    es_model = load_net( "pg/es_greedy.pth.tar", 874, PGNetwork, eval=True)
+    pg_model = load_net( "pg/pg_pg.pth.tar", 874, PGNetwork, eval=True)
+    es_model = load_net( "pg/pg_greedy.pth.tar", 874, PGNetwork, eval=True)
     for i in range(1000):
         np.random.shuffle(deck_cards) 
-        pg_reward, pg_record= play_game(1, Game, [PGPlayer, RandomPlayer], models=[pg_model, None], deck=deck_cards)
-        greedy_reward, greedy_record = play_game(1, Game, [GreedyPlayer, RandomPlayer], models=[pg_model, None], deck=deck_cards)
-        random_reward, random_record = play_game(1, Game, [RandomPlayer, RandomPlayer], models=[pg_model, None], deck=deck_cards)
-        es_reward, es_record = play_game(1, Game, [PGPlayer, RandomPlayer], models=[es_model, None], deck=deck_cards)
+        pg_reward, pg_record= play_game(1, Game, [PGPlayer, RandomPlayer], models=[es_model, pg_model], deck=deck_cards)
+        # greedy_reward, greedy_record = play_game(1, Game, [PGPlayer, PGPlayer], models=[pg_attacker, es_defender], deck=deck_cards)
+        # random_reward, random_record = play_game(1, Game, [PGPlayer, PGPlayer], models=[es_attacker, pg_defender], deck=deck_cards)
+        # es_reward, es_record = play_game(1, Game, [PGPlayer, PGPlayer], models=[es_attacker, pg_defender], deck=deck_cards)
 
-        random_rewards.append(random_reward[0][0])
-        random_records[i] = random_record[0]
-        greedy_rewards.append(greedy_reward[0][0])
-        greedy_records[i] = greedy_record[0]
+        # random_rewards.append(random_reward[0][0])
+        # random_records[i] = random_record[0]
+        # greedy_rewards.append(greedy_reward[1][0])
+        # greedy_records[i] = greedy_record[0]
         pg_rewards.append(pg_reward[0][0])
         pg_records[i] = pg_record[0]
-        es_rewards.append(es_reward[0][0])
-        es_records[i] = es_record[0]
+        es_rewards.append(pg_reward[1][0])
+        es_records[i] = pg_record[0]
 
     plt.hist(pg_rewards, 
          label= "Policy Gradient",
@@ -231,17 +231,17 @@ if __name__ == '__main__':
     plt.hist(es_rewards, 
             label='ES',
             alpha=0.6)
-    plt.hist(random_rewards, 
-            label='Random', 
-            alpha=0.6)
-    plt.hist(greedy_rewards, 
-            label='Greedy', 
-            alpha=0.6)
+    # plt.hist(random_rewards, 
+    #         label='Random', 
+    #         alpha=0.6)
+    # plt.hist(greedy_rewards, 
+    #         label='PG vs PG', 
+    #         alpha=0.6)
 
     plt.xlabel('score')
     plt.ylabel('count')
     
     plt.legend(loc='upper left')
-    plt.title('Score Distributions')
+    plt.title('ES attacker vs PG defender')
     plt.show()
     

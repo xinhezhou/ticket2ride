@@ -42,7 +42,7 @@ edges = {
 }
 destination_cards = [
     [(1, 3),(1, 6)],
-    [(0, 6), (3, 6)]
+    [(1, 3), (1, 6)]
 ]
 
 
@@ -294,8 +294,8 @@ if __name__ == '__main__':
     # """
     initial_defender = None
     # initial_attacker = None
-    defender_checkpoint ="greed_pg.pth.tar"
-    defender_reward_file = "greedy_pg_reward.pdf"
+    defender_checkpoint ="pg_greedy.pth.tar"
+    defender_reward_file = "pg_greedy_reward.pdf"
     # attacker_checkpoint ="pg_greedy.pth.tar"
     # attacker_reward_file = "pg_greedy.pdf"
     # attacker_net = load_net(initial_attacker, 874, PGNetwork)
@@ -310,12 +310,10 @@ if __name__ == '__main__':
     # attacker_history_reward = [] # store moving average of empirical rewards
     defender_history_reward = []
     for step in range(20000):
-        # actions, rewards, log_probs, values, attacker_ep_reward = rollout_attacker([attacker_net, None], Game, [PGPlayer, GreedyPlayer], deck=None)
-        # attacker_running_reward = 0.05 * attacker_ep_reward + (1 - 0.05) * attacker_running_reward
-        # attacker_history_reward.append(attacker_running_reward)
-        # loss = optimize_model(attacker_net, attacker_optimizer, rewards, log_probs, gamma)
-
-        actions, rewards, log_probs, values, defender_ep_reward = rollout_defender([None, defender_net], Game, [GreedyPlayer, PGPlayer], deck=None)
+        # if step % 2 == 0:
+            # actions, rewards, log_probs, values, defender_ep_reward = rollout_defender([defender_net, defender_net], Game, [PGPlayer, PGPlayer], deck=None)
+        # else:
+        actions, rewards, log_probs, values, defender_ep_reward = rollout_attacker([defender_net, defender_net], Game, [PGPlayer, GreedyPlayer], deck=None)
         defender_running_reward = 0.05 * defender_ep_reward + (1 - 0.05) * defender_running_reward
         defender_history_reward.append(defender_running_reward)
         loss = optimize_model(defender_net, defender_optimizer, rewards, log_probs, gamma)
