@@ -51,8 +51,7 @@ def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
         parameters.append(w_try)
     average_fitnesses.append(sum(R)/len(R))
     max_fitnesses.append(max(R))
-    if len(max_fitnesses) == 1 or max(R) >  max_fitnesses[-2]:
-        target_net.load_state_dict(parameters[np.argmax(R)])
+    target_net.load_state_dict(parameters[np.argmax(R)])
 
 
 
