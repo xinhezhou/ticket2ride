@@ -5,7 +5,7 @@ from utils.game_utils import compute_availability_matrix, get_available_routes
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
-def compute_input_matrix(game, players):
+def compute_input_matrix(game, players, hide_cards=False):
     dqn_input = None
     for player in players:
         availability = compute_availability_matrix(game.graph, game.status, player)
@@ -20,7 +20,11 @@ def compute_input_matrix(game, players):
         if dqn_input is None:
             dqn_input = (torch.cat([availability, cards, trains])).T
         else:
-            dqn_input = (torch.cat([dqn_input.T, availability, cards, trains])).T
+            if hide_cards:
+                # print("here")
+                dqn_input = (torch.cat([dqn_input.T, torch.zeros(availability.shape), torch.zeros(cards.shape), trains])).T
+            else:
+                dqn_input = (torch.cat([dqn_input.T, availability, cards, trains])).T
     return dqn_input
 
 
@@ -37,7 +41,7 @@ class PGPlayer:
         self.net = model
      
 
-    def choose_route(self, game, players):
+    def choose_route(self, game, players, hide_cards=False):
         """
         chooses a route based on the route policy network (route_net)
         and the availability of routes
@@ -45,7 +49,7 @@ class PGPlayer:
         availability = compute_availability_matrix(game.graph, game.status, self)
         availability = torch.from_numpy(np.reshape(availability, (7*7*7, 1))).float()
         mask = torch.cat([torch.tensor([[0]]), torch.reshape(availability, (7*7*7, 1))])
-        dist = self.net(compute_input_matrix(game, players), mask)
+        dist = self.net(compute_input_matrix(game, players, hide_cards), mask)
         action = dist.sample()
         action_ = action.item() - 1
         u = action_ // 49
@@ -53,7 +57,7 @@ class PGPlayer:
         c = action_ - 49 * u - 7 * v 
         return (u,v,c)
 
-    def draw_or_claim(self, game, players, eps=False):
+    def draw_or_claim(self, game, players, hide_cards=False):
         """
         Choose the action associated withe the highest value
         based on the card policy
@@ -61,7 +65,7 @@ class PGPlayer:
         availability = compute_availability_matrix(game.graph, game.status, self)
         # availability = torch.from_numpy(np.reshape(availability, (7*7*7, 1))).float()
         mask = torch.cat([torch.tensor([[1]]), torch.from_numpy(np.reshape(availability, (7*7*7, 1)))])
-        dist = self.net(compute_input_matrix(game, players), mask)
+        dist = self.net(compute_input_matrix(game, players, hide_cards), mask)
         action = dist.sample()
         if action == 0:
             return 0

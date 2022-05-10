@@ -12,7 +12,7 @@ class GreedyPlayer:
         self.id = id
 
 
-    def choose_route(self, game, players):
+    def choose_route(self, game, players, hide_cards):
         """
         Find all possible routes and chooses a route that makes the most progress. 
         Here, progress is defined as the decrease in the sum of distances
@@ -28,7 +28,7 @@ class GreedyPlayer:
         # print(route_progress)
         return available_routes[np.argmax(route_progress)]
 
-    def draw_or_claim(self, game, players):
+    def draw_or_claim(self, game, players, hide_cards):
         """
         If at least one route makes positive progress, claim a route (1). Otherwise, draw 2 cards (0)
         """
