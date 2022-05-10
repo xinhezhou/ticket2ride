@@ -31,8 +31,8 @@ def update(weights, sigma, jitters):
 
 def compute_fitness(w, target_net):
     target_net.load_state_dict(w)
-    rewards_first, _ = play_game(50, Game, [PGPlayer, GreedyPlayer], models=[target_net, target_net], deck=None, hide_cards=[True, True])
-    rewards_second, _ = play_game(50, Game, [GreedyPlayer, PGPlayer], models=[target_net, target_net], deck=None, hide_cards=[True, True])
+    rewards_first, _ = play_game(50, Game, [PGPlayer, PGPlayer], models=[target_net, target_net], deck=None, hide_cards=[True, True])
+    rewards_second, _ = play_game(50, Game, [PGPlayer, PGPlayer], models=[target_net, target_net], deck=None, hide_cards=[True, True])
     return (sum(rewards_first[0])/len(rewards_first[0]) + sum(rewards_second[1])/len(rewards_second[1])) / 2
     
 
@@ -82,9 +82,9 @@ if __name__ == '__main__':
     TEST 1: with prior memory and checkpoint 
     """
     initial_checkpoint = None
-    selfplay_checkpoint ="es_supervised_model.pth.tar"
-    average_fitness_file = "es_supervised_average_fitness.pdf"
-    max_fitness_file = "es_supervised_max_fitness.pdf"
+    selfplay_checkpoint ="es_selfplay_model.pth.tar"
+    average_fitness_file = "es_selfplay_average_fitness.pdf"
+    max_fitness_file = "es_selfplay_max_fitness.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
 
     # """
