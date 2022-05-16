@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 from solitaire import play_game
 sys.path.append("../")
-from RLplayers.linear_player import DQNPlayer, QValueNetwork
+from RLplayers.dqn_player import DQNPlayer, QValueNetwork
 from RLplayers.rl_utils import load_net
 from game import Game
 
@@ -58,29 +58,30 @@ def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_f
     target_net = load_net(initial_checkpoint, 437, QValueNetwork)
     average_fitnesses = []
     max_fitnesses = []
-    for _ in range(round):
+    for i in range(round):
         optimize_model(target_net, average_fitnesses, max_fitnesses, sigma)
-        if _ % 10 == 0:
+        if i % 20 == 0:
             print(average_fitnesses[-1], max_fitnesses[-1])
-        sigma *= 0.999
-    torch.save({
-                'state_dict': target_net.state_dict(),
-            }, selfplay_checkpoint)
-    plt.clf()
-    plt.plot(range(len(average_fitnesses)), average_fitnesses)
-    plt.savefig(average_fitness_file)
-    plt.clf()
-    plt.plot(range(len(max_fitnesses)), max_fitnesses)
-    plt.savefig(max_fitness_file)
+            torch.save({
+                        'state_dict': target_net.state_dict(),
+                    }, "es_checkpoints/" + str(i) + selfplay_checkpoint)
+            plt.clf()
+            plt.plot(range(len(average_fitnesses)), average_fitnesses)
+            plt.savefig("es_checkpoints/" + str(i) + average_fitness_file)
+            plt.clf()
+            plt.plot(range(len(max_fitnesses)), max_fitnesses)
+            plt.savefig("es_checkpoints/" + str(i) + max_fitness_file)
+    sigma *= 0.999
+    
 
 if __name__ == '__main__':
     """
     TEST 1: with prior memory and checkpoint 
     """
     initial_checkpoint = None
-    selfplay_checkpoint ="es_selfplay.pth.tar"
-    average_fitness_file = "es_average.pdf"
-    max_fitness_file = "es_max_fitness.pdf"
+    selfplay_checkpoint ="es_3.pth.tar"
+    average_fitness_file = "es_average_fitness_3.pdf"
+    max_fitness_file = "es_max_fitness_3.pdf"
     train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=200)
 
     # """

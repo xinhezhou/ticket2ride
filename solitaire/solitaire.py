@@ -6,7 +6,7 @@ from game import Game
 from nonRLplayers.random_player import RandomPlayer
 from nonRLplayers.greedy_player import GreedyPlayer
 from nonRLplayers.frugal_player import FrugalPlayer
-from RLplayers.linear_player import DQNPlayer, QValueNetwork
+from RLplayers.dqn_player import DQNPlayer, QValueNetwork
 from RLplayers.cnn_player import CNNPlayer
 from RLplayers.rl_utils import load_net
 from RLplayers.cnn_network import CNNSimple
@@ -41,8 +41,9 @@ edges = {
   (5, 6, 3): 3,
 }
 destination_cards = [
-    (0, 6),
-    (1, 5)
+    (1, 5),
+    (2, 3),
+    (0, 6)
 ]
 
 def check_win(player, game):
@@ -68,7 +69,7 @@ def play_game(iterations, game_class, player_class, eps=0, model=None, update=Fa
         else:
             deck_cards = deck
         game = game_class(num_vertices, num_route_colors, edges, deck_cards)
-        player = player_class(num_card_colors, destination_cards, 10, 1, model)
+        player = player_class(num_card_colors, destination_cards, 15, 1, model)
         game.draw_cards(player)
         game.draw_cards(player)
         record = {}
@@ -147,57 +148,61 @@ def compute_route_freq(records, k, win_file=None):
 
 
 if __name__ == '__main__':
-    # rewards, records = play_game(100, Game, RandomPlayer)
-    # print(sum(rewards)/len(rewards))
+    average_rewards =[]
+    rewards, records = play_game(1000, Game, RandomPlayer)
+    with open("random_record_3.json", "w") as outfile:
+        json.dump(records, outfile)
+    print(sum(rewards)/len(rewards))
 
 
-    # rewards, records = play_game(1000, Game, GreedyPlayer)
-    # with open("dqn_greedy_record.json", "w") as outfile:
-    #     json.dump(records, outfile)
-    # print(sum(rewards)/len(rewards))
 
-    # net_file = "dqn_selfplay.pth.tar"
+    rewards, records = play_game(1000, Game, GreedyPlayer)
+    with open("greedy_record_3.json", "w") as outfile:
+        json.dump(records, outfile)
+    print(sum(rewards)/len(rewards))
+
+    net_file = "dqn_3.pth.tar"
+    model = load_net(net_file, 442, QValueNetwork, eval=True)
+    rewards, records = play_game(1000, Game, DQNPlayer, eps=0, model=model)
+    print(sum(rewards)/len(rewards))
+    with open("dqn_eval_record_3.json", "w") as outfile:
+        json.dump(records, outfile)
+
+
+
+    # net_file = "es_checkpoints/60es_2.pth.tar"
     # model = load_net(net_file, 437, QValueNetwork, eval=True)
-    # rewards, records = play_game(1000, Game, DQNPlayer, eps=0, model=model)
+    # rewards, records = play_game(1000, Game, DQNPlayer, eps=0, model=model, deck=None)
     # print(sum(rewards)/len(rewards))
-    # with open("dqn_selfplay_record.json", "w") as outfile:
+    # with open("es_eval_record_2.json", "w") as outfile:
     #     json.dump(records, outfile)
 
 
+    # random_records = {}
+    # random_rewards = []
+    # greedy_records = {}
+    # greedy_rewards = []
+    # dqn_records = {}
+    # dqn_rewards = []
+    # es_records = {}
+    # es_rewards = []
+    # dqn_model = load_net(  "dqn_2.pth.tar", 437, QValueNetwork, eval=True)
+    # es_model = load_net( "es_checkpoints/60es_2.pth.tar", 437, QValueNetwork, eval=True)
+    # for i in range(1000):
+    #     np.random.shuffle(deck_cards) 
+    #     dqn_reward, dqn_record= play_game(1, Game, DQNPlayer, eps=0, model=dqn_model, deck=deck_cards)
+    #     greedy_reward, greedy_record = play_game(1, Game, GreedyPlayer, deck=deck_cards)
+    #     random_reward, random_record = play_game(1, Game, RandomPlayer, deck=deck_cards)
+    #     es_reward, es_record = play_game(1, Game, DQNPlayer, eps=0, model=es_model, deck=deck_cards)
 
-    # net_file = "es_selfplay.tar"
-    # model = load_net(net_file, 437, QValueNetwork, eval=True)
-    # rewards, _ = play_game(1000, Game, DQNPlayer, eps=0, model=model, deck=None)
-    # print(sum(rewards)/len(rewards))
-    # with open("es_selfplay_record.json", "w") as outfile:
-    #     json.dump(records, outfile)
-
-
-    random_records = {}
-    random_rewards = []
-    greedy_records = {}
-    greedy_rewards = []
-    dqn_records = {}
-    dqn_rewards = []
-    es_records = {}
-    es_rewards = []
-    dqn_model = load_net( "checkpoints/dqn_selfplay.pth.tar", 437, QValueNetwork, eval=True)
-    es_model = load_net( "checkpoints/es_selfplay.pth.tar", 437, QValueNetwork, eval=True)
-    for i in range(1000):
-        np.random.shuffle(deck_cards) 
-        dqn_reward, dqn_record= play_game(1, Game, DQNPlayer, eps=0, model=dqn_model, deck=deck_cards)
-        greedy_reward, greedy_record = play_game(1, Game, GreedyPlayer, deck=deck_cards)
-        random_reward, random_record = play_game(1, Game, RandomPlayer, deck=deck_cards)
-        es_reward, es_record = play_game(1, Game, DQNPlayer, eps=0, model=es_model, deck=deck_cards)
-
-        random_rewards.append(random_reward[0])
-        random_records[i] = random_record[0]
-        greedy_rewards.append(greedy_reward[0])
-        greedy_records[i] = greedy_record[0]
-        dqn_rewards.append(dqn_reward[0])
-        dqn_records[i] = dqn_record[0]
-        es_rewards.append(es_reward[0])
-        es_records[i] = es_record[0]
+    #     random_rewards.append(random_reward[0])
+    #     random_records[i] = random_record[0]
+    #     greedy_rewards.append(greedy_reward[0])
+    #     greedy_records[i] = greedy_record[0]
+    #     dqn_rewards.append(dqn_reward[0])
+    #     dqn_records[i] = dqn_record[0]
+    #     es_rewards.append(es_reward[0])
+    #     es_records[i] = es_record[0]
     
     # plt.hist(dqn_rewards, 
     #      label= "DQN",
@@ -219,33 +224,33 @@ if __name__ == '__main__':
     # plt.title('Score Distributions')
     # plt.show()
         
-    with open("random_record.json", "w") as outfile:
-        json.dump(random_records, outfile)
-    with open("greedy_record.json", "w") as outfile:
-        json.dump(greedy_records, outfile)
-    with open("dqn_record.json", "w") as outfile:
-        json.dump(dqn_records, outfile)
-    with open("es_record.json", "w") as outfile:
-        json.dump(es_records, outfile) 
+    # with open("random_record.json", "w") as outfile:
+    #     json.dump(random_records, outfile)
+    # with open("greedy_record.json", "w") as outfile:
+    #     json.dump(greedy_records, outfile)
+    # with open("dqn_record.json", "w") as outfile:
+    #     json.dump(dqn_records, outfile)
+    # with open("es_record.json", "w") as outfile:
+    #     json.dump(es_records, outfile) 
 
 
-    print(sum(random_rewards), sum(greedy_rewards), sum(dqn_rewards), sum(es_rewards))
+    # print(sum(random_rewards), sum(greedy_rewards), sum(dqn_rewards), sum(es_rewards))
 
 
 
-    f = open("random_record.json")
-    records = json.load(f)
-    route_freqs = compute_route_freq(records, 50, None)
+    # f = open("random_record.json")
+    # records = json.load(f)
+    # route_freqs = compute_route_freq(records, 50, None)
 
-    f = open("greedy_record.json")
-    records = json.load(f)
-    route_freqs = compute_route_freq(records, 50, None)
+    # f = open("greedy_record.json")
+    # records = json.load(f)
+    # route_freqs = compute_route_freq(records, 50, None)
 
-    f = open("dqn_record.json")
-    records = json.load(f)
-    route_freqs = compute_route_freq(records, 50, None)
+    # f = open("dqn_record.json")
+    # records = json.load(f)
+    # route_freqs = compute_route_freq(records, 50, None)
 
-    f = open("es_record.json")
-    records = json.load(f)
-    route_freqs = compute_route_freq(records, 40, None)
+    # f = open("es_record.json")
+    # records = json.load(f)
+    # route_freqs = compute_route_freq(records, 40, None)
 
