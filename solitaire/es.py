@@ -55,7 +55,7 @@ def optimize_model(target_net, average_fitnesses, max_fitnesses, sigma):
 
 def train_es_selfplay(initial_checkpoint, selfplay_checkpoint, average_fitness_file, max_fitness_file, round=1):
     sigma = 0.1
-    target_net = load_net(initial_checkpoint, 437, QValueNetwork)
+    target_net = load_net(initial_checkpoint, 442, QValueNetwork)
     average_fitnesses = []
     max_fitnesses = []
     for i in range(round):
