@@ -11,7 +11,7 @@ def compute_input_matrix(game, players):
     for i in range(len(player.cards)):
         for j in range(12*i, 12*i + int(player.cards[i])):
             cards[j] = 1
-    trains = torch.zeros((10, 1))
+    trains = torch.zeros((15, 1))
     for i in range(int(player.trains)):
         trains[i] = 1
     
